@@ -3,4 +3,36 @@
 ---
 fixtures:
   forge_modules:
-#     stdlib: "puppetlabs/stdlib"
+    stdlib:
+      repo: puppetlabs/stdlib
+      ref: 6.3.0
+    java:
+      repo: puppetlabs/java
+      ref: 6.3.0
+    datacat:
+      repo: richardc/datacat
+      ref: 0.6.2
+    yumrepo_core:
+      repo: puppetlabs/yumrepo_core
+      ref: 1.0.7
+    elastic_stack:
+      repo: elastic/elastic_stack
+      ref: 7.0.0
+    elasticsearch:
+      repo: elastic/elasticsearch
+      ref: 6.4.0
+    mongodb:
+      repo: puppet/mongodb
+      ref: 3.1.0
+    graylog:
+      repo: graylog/graylog
+      ref: 0.9.0
+    systemd:
+      repo: camptocamp/systemd
+      ref: 2.9.0
+  repositories:
+    rlimits:
+      repo: "https://github.com/aursu/puppet-rlimits.git"
+    augeas_core:
+      repo: https://github.com/puppetlabs/puppetlabs-augeas_core.git
+      puppet_version: ">= 6.0.0"
