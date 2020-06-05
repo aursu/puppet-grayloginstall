@@ -27,7 +27,7 @@ class grayloginstall::server (
 
   # https://docs.graylog.org/en/3.3/pages/installation/os/centos.html
   class { 'graylog::repository':
-    url     => "https://packages.graylog2.org/el/stable/${major_version}/\$basearch/",
+    url     => "https://packages.graylog2.org/repo/el/stable/${major_version}/\$basearch/",
     version => $major_version,
   }
 

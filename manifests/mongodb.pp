@@ -7,7 +7,7 @@
 class grayloginstall::mongodb (
   Boolean $manage_open_files_limit = true,
   Boolean $manage_selinux          = false,
-  String  $version                 = '4.4',
+  String  $version                 = '4.3',
   Array[Stdlib::IP::Address]
           $bind_ip                 = ['127.0.0.1'],
 )
