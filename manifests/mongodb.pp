@@ -33,7 +33,7 @@ class grayloginstall::mongodb (
     use_enterprise_repo => false,
   }
 
-  Yumrepo['mongodb'] {
+  Yumrepo <| title == 'mongodb' |> {
     sslverify => 0,
   }
 

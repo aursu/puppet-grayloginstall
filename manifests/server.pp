@@ -31,7 +31,7 @@ class grayloginstall::server (
     version => $major_version,
   }
 
-  Yumrepo['graylog'] {
+  Yumrepo <| title == 'graylog' |> {
     sslverify => 0,
   }
 
