@@ -2,35 +2,28 @@
   "name": "aursu-grayloginstall",
   "version": "0.1.0",
   "author": "aursu",
-  "summary": "",
+  "summary": "Manage GrayLog installation",
   "license": "Apache-2.0",
-  "source": "",
+  "source": "https://github.com/aursu/puppet-grayloginstall.git",
   "dependencies": [
-
+    {
+      "name": "puppetlabs/stdlib",
+      "version_requirement": ">= 4.25.0 < 7.0.0"
+    }
   ],
   "operatingsystem_support": [
     {
       "operatingsystem": "CentOS",
       "operatingsystemrelease": [
-        "7"
-      ]
-    },
-    {
-      "operatingsystem": "OracleLinux",
-      "operatingsystemrelease": [
-        "7"
+        "7",
+        "8"
       ]
     },
     {
       "operatingsystem": "RedHat",
       "operatingsystemrelease": [
+        "7",
         "8"
-      ]
-    },
-    {
-      "operatingsystem": "Scientific",
-      "operatingsystemrelease": [
-        "7"
       ]
     }
   ],
