@@ -13,13 +13,17 @@ class grayloginstall::server (
   Boolean $manage_elastic  = true,
   String  $major_version   = '3.3',
   String  $package_version = '3.3.0',
+  Optional[Integer[0,1]]
+          $repo_sslverify  = undef,
 )
 {
   if $manage_java {
     include grayloginstall::java
   }
   if $manage_monngodb {
-    include grayloginstall::mongodb
+    class { 'grayloginstall::mongodb':
+      repo_sslverify => 0,
+    }
   }
   if $manage_elastic {
     include grayloginstall::elastic
@@ -31,8 +35,15 @@ class grayloginstall::server (
     version => $major_version,
   }
 
-  Yumrepo <| title == 'graylog' |> {
-    sslverify => 0,
+  if $repo_sslverify {
+    Yumrepo <| title == 'graylog' |> {
+      sslverify => $repo_sslverify,
+    }
+  }
+
+  # file resource to not purge repo in case if /etc/yum.repos.d are managed with purge => true
+  file { '/etc/yum.repos.d/graylog.repo':
+    mode => '0600',
   }
 
   class { 'graylog::server':

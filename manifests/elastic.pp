@@ -25,6 +25,11 @@ class grayloginstall::elastic (
     version => 6,
   }
 
+  # file resource to not purge repo in case if /etc/yum.repos.d are managed with purge => true
+  file { '/etc/yum.repos.d/elastic.repo':
+    mode => '0600',
+  }
+
   elasticsearch::instance { 'graylog':
     config => {
       'network.host' => $network_host,

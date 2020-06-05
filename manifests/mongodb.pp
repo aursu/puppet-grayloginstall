@@ -10,6 +10,8 @@ class grayloginstall::mongodb (
   String  $version                 = '4.2.7',
   Array[Stdlib::IP::Address]
           $bind_ip                 = ['127.0.0.1'],
+  Optional[Integer[0,1]]
+          $repo_sslverify          = undef,
 )
 {
   # https://docs.mongodb.com/master/tutorial/install-mongodb-on-red-hat/
@@ -33,8 +35,15 @@ class grayloginstall::mongodb (
     use_enterprise_repo => false,
   }
 
-  Yumrepo <| title == 'mongodb' |> {
-    sslverify => 0,
+  if $repo_sslverify {
+    Yumrepo <| title == 'mongodb' |> {
+      sslverify => $repo_sslverify,
+    }
+  }
+
+  # file resource to not purge repo in case if /etc/yum.repos.d are managed with purge => true
+  file { '/etc/yum.repos.d/mongodb.repo':
+    mode => '0600',
   }
 
   systemd::dropin_file { 'mongod.service.d/limits.conf':
