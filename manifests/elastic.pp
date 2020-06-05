@@ -14,11 +14,15 @@ class grayloginstall::elastic (
   # https://www.elastic.co/guide/en/elasticsearch/reference/6.7/rpm.html
   class { 'elasticsearch':
     version     => $version,
-    manage_repo => true,
+    manage_repo => false,
     config      => {
       'cluster.name'             => 'graylog',
       'action.auto_create_index' => false,
     }
+  }
+
+  class { 'elastic_stack::repo':
+    version => 6,
   }
 
   elasticsearch::instance { 'graylog':
@@ -26,4 +30,7 @@ class grayloginstall::elastic (
       'network.host' => $network_host,
     },
   }
+
+  Class['elastic_stack::repo']
+      -> Class['elasticsearch::package']
 }
