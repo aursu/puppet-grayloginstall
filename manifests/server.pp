@@ -31,6 +31,10 @@ class grayloginstall::server (
     version => $major_version,
   }
 
+  Yumrepo['graylog'] {
+    sslverify => 0,
+  }
+
   class { 'graylog::server':
     package_version => $package_version,
     # https://docs.graylog.org/en/3.2/pages/getting_started/configure.html

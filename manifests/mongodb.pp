@@ -33,6 +33,10 @@ class grayloginstall::mongodb (
     use_enterprise_repo => false,
   }
 
+  Yumrepo['mongodb'] {
+    sslverify => 0,
+  }
+
   systemd::dropin_file { 'mongod.service.d/limits.conf':
     filename => 'limits.conf',
     unit     => 'mongod.service',
