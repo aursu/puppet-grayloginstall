@@ -8,11 +8,11 @@ class grayloginstall::server (
   String  $root_password,
   String[64]
           $password_secret,
+  String  $major_version   = '3.3',
+  String  $package_version = '3.3.0',
   Boolean $manage_java     = true,
   Boolean $manage_monngodb = true,
   Boolean $manage_elastic  = true,
-  String  $major_version   = '3.3',
-  String  $package_version = '3.3.0',
   Optional[Integer[0,1]]
           $repo_sslverify  = undef,
 )
