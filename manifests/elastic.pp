@@ -6,7 +6,7 @@
 #   include grayloginstall::elastic
 class grayloginstall::elastic (
   # Graylog 3 does not work with Elasticsearch 7.x!
-  String  $version      = '6.7.2',
+  String  $version      = '6.8.10',
   Stdlib::IP::Address
           $network_host = '127.0.0.1',
 )
@@ -17,7 +17,7 @@ class grayloginstall::elastic (
     manage_repo => false,
     config      => {
       'cluster.name'             => 'graylog',
-      'action.auto_create_index' => false,
+      'action.auto_create_index' => '.watches,.triggered_watches,.watcher-history-*',
     }
   }
 
