@@ -22,7 +22,7 @@ class grayloginstall::server (
   }
   if $manage_monngodb {
     class { 'grayloginstall::mongodb':
-      repo_sslverify => 0,
+      repo_sslverify => $repo_sslverify,
     }
   }
   if $manage_elastic {
