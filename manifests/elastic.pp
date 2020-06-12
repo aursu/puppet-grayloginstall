@@ -17,7 +17,8 @@ class grayloginstall::elastic (
           $discovery_seed_hosts = ['127.0.0.1', '::1'],
 )
 {
-  $config_discovery_seed_hosts = grayloginstall::configaddr($discovery_seed_hosts)
+  $remote_discovery_seed_hosts = $discovery_seed_hosts.filter |$addr| { !grayloginstall::selfaddr($addr) }
+  $config_discovery_seed_hosts = grayloginstall::configaddr($remote_discovery_seed_hosts)
 
   # https://www.elastic.co/guide/en/elasticsearch/reference/6.7/rpm.html
   class { 'elasticsearch':
