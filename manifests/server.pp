@@ -8,25 +8,34 @@ class grayloginstall::server (
   String  $root_password,
   String[64]
           $password_secret,
-  String  $major_version   = '3.3',
-  String  $package_version = '3.3.0',
-  Boolean $manage_java     = true,
-  Boolean $manage_monngodb = true,
-  Boolean $manage_elastic  = true,
+  String  $major_version      = '3.3',
+  String  $package_version    = '3.3.0',
+
+  Boolean $manage_mongodb     = true,
+
+  Boolean $manage_elastic     = true,
+  Optional[Array[Stdlib::IP::Address]]
+          $elastic_seed_hosts = ['127.0.0.1', '::1'],
+
+  Boolean $manage_java        = true,
   Optional[Integer[0,1]]
-          $repo_sslverify  = undef,
+          $repo_sslverify     = undef,
 )
 {
   if $manage_java {
     include grayloginstall::java
   }
-  if $manage_monngodb {
+
+  if $manage_mongodb {
     class { 'grayloginstall::mongodb':
       repo_sslverify => $repo_sslverify,
     }
   }
+
   if $manage_elastic {
-    include grayloginstall::elastic
+    class { 'grayloginstall::elastic':
+      discovery_seed_hosts => $elastic_seed_hosts,
+    }
   }
 
   # https://docs.graylog.org/en/3.3/pages/installation/os/centos.html
