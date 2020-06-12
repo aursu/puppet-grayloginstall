@@ -6,11 +6,19 @@
 #   include grayloginstall::elastic
 class grayloginstall::elastic (
   # Graylog 3 does not work with Elasticsearch 7.x!
-  String  $version      = '6.8.10',
-  Stdlib::IP::Address
-          $network_host = '127.0.0.1',
+  String  $version              = '6.8.10',
+  # Any site-local addresses on the system, for example 192.168.0.1
+  Grayloginstall::NetworkHost
+          $network_host         = '_site_',
+  # default is 2 (avoiding split brain in case of 2-3 nodes)
+  Integer $minimum_master_nodes = 2,
+  # default is ["127.0.0.1", "[::1]"]
+  Array[Stdlib::IP::Address]
+          $discovery_seed_hosts = ['127.0.0.1', '::1'],
 )
 {
+  $config_discovery_seed_hosts = grayloginstall::configaddr($discovery_seed_hosts)
+
   # https://www.elastic.co/guide/en/elasticsearch/reference/6.7/rpm.html
   class { 'elasticsearch':
     version     => $version,
@@ -32,7 +40,9 @@ class grayloginstall::elastic (
 
   elasticsearch::instance { 'graylog':
     config => {
-      'network.host' => $network_host,
+      'network.host'                       => $network_host,
+      'discovery.zen.ping.unicast.hosts'   => $config_discovery_seed_hosts,
+      'discovery.zen.minimum_master_nodes' => $minimum_master_nodes,
     },
   }
 
