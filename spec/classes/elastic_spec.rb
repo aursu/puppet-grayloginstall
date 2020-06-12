@@ -109,6 +109,15 @@ describe 'grayloginstall::elastic' do
 
       it { is_expected.to compile }
 
+      it {
+        is_expected.to contain_elasticsearch__instance('graylog')
+          .with_config(
+            'network.host'                       => '_site_',
+            'discovery.zen.ping.unicast.hosts'   => ['127.0.0.1', '[::1]'],
+            'discovery.zen.minimum_master_nodes' => 2,
+          )
+      }
+
       context 'with discovery seed hosts' do
         let(:params) do
           {
