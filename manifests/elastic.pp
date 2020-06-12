@@ -25,12 +25,13 @@ class grayloginstall::elastic (
 
   # https://www.elastic.co/guide/en/elasticsearch/reference/6.7/rpm.html
   class { 'elasticsearch':
-    version     => $version,
-    manage_repo => false,
-    config      => {
+    version           => $version,
+    manage_repo       => false,
+    config            => {
       'cluster.name'             => 'graylog',
       'action.auto_create_index' => '.watches,.triggered_watches,.watcher-history-*',
-    }
+    },
+    restart_on_change => true
   }
 
   class { 'elastic_stack::repo':
