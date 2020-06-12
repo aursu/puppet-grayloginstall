@@ -8,18 +8,20 @@ class grayloginstall::server (
   String  $root_password,
   String[64]
           $password_secret,
-  String  $major_version      = '3.3',
-  String  $package_version    = '3.3.0',
+  String  $major_version        = '3.3',
+  String  $package_version      = '3.3.0',
 
-  Boolean $manage_mongodb     = true,
+  Boolean $manage_mongodb       = true,
 
-  Boolean $manage_elastic     = true,
+  Boolean $manage_elastic       = true,
+  Grayloginstall::NetworkHost
+          $elastic_network_host = '_site_',
   Optional[Array[Stdlib::IP::Address]]
-          $elastic_seed_hosts = ['127.0.0.1', '::1'],
+          $elastic_seed_hosts   = ['127.0.0.1', '::1'],
 
-  Boolean $manage_java        = true,
+  Boolean $manage_java          = true,
   Optional[Integer[0,1]]
-          $repo_sslverify     = undef,
+          $repo_sslverify       = undef,
 )
 {
   if $manage_java {
@@ -34,6 +36,7 @@ class grayloginstall::server (
 
   if $manage_elastic {
     class { 'grayloginstall::elastic':
+      network_host         => $elastic_network_host,
       discovery_seed_hosts => $elastic_seed_hosts,
     }
   }
