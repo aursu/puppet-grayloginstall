@@ -79,6 +79,11 @@ class grayloginstall::server (
     mode => '0600',
   }
 
+  file { '/etc/graylog':
+    ensure => directory,
+    mode   => '0755',
+  }
+
   $http_bind_address = "${http_bind_ip}:${http_bind_port}"
 
   class { 'graylog::server':

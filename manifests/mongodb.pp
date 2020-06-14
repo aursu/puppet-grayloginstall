@@ -5,6 +5,7 @@
 # @example
 #   include grayloginstall::mongodb
 class grayloginstall::mongodb (
+  String  $cluster_name            = 'graylog',
   Boolean $manage_open_files_limit = true,
   Boolean $manage_selinux          = false,
   String  $version                 = '4.2.7',
@@ -14,6 +15,16 @@ class grayloginstall::mongodb (
           $repo_sslverify          = undef,
 )
 {
+  # self export
+  @@grayloginstall::mongodb_host { $::facts['fqdn']:
+    cluster_name => $cluster_name,
+  }
+  # import all
+  Grayloginstall::Mongodb_host <<| cluster_name == $cluster_name |>>
+
+  $discovery_hosts = grayloginstall::discovery_hosts('grayloginstall::mongodb_host', 'ip')
+  notify { $discovery_hosts: }
+
   # https://docs.mongodb.com/master/tutorial/install-mongodb-on-red-hat/
   #
   # https://docs.mongodb.com/master/reference/ulimit/

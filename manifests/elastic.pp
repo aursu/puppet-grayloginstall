@@ -30,6 +30,7 @@
 #   See https://www.elastic.co/guide/en/elasticsearch/reference/6.8/discovery-settings.html#unicast.hosts
 #
 class grayloginstall::elastic (
+  String  $cluster_name         = 'graylog',
   String  $version              = '6.8.10',
   Grayloginstall::NetworkHost
           $network_host         = '_site_',
@@ -50,7 +51,7 @@ class grayloginstall::elastic (
     version           => $version,
     manage_repo       => false,
     config            => {
-      'cluster.name'             => 'graylog',
+      'cluster.name'             => $cluster_name,
       'action.auto_create_index' => '.watches,.triggered_watches,.watcher-history-*',
     },
     restart_on_change => true
