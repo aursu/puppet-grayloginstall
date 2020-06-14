@@ -25,15 +25,15 @@ describe 'grayloginstall::discovery_hosts' do
     it { is_expected.to run.with_params('User').and_return([]) }
   end
 
-  describe "when discovery hosts against a user resource and gid param" do
+  describe 'when discovery hosts against a user resource and gid param' do
     let(:pre_condition) { 'user { "one": }' }
 
     it { is_expected.to run.with_params('User', 'gid').and_return([]) }
 
     context 'when gid param is set' do
-        let(:pre_condition) { 'user { "one": gid => 1000 }' }
+      let(:pre_condition) { 'user { "one": gid => 1000 }' }
 
-        it { is_expected.to run.with_params('User', 'gid').and_return(['1000']) }
+      it { is_expected.to run.with_params('User', 'gid').and_return(['1000']) }
     end
   end
 end
