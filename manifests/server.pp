@@ -86,15 +86,23 @@ class grayloginstall::server (
 
   $http_bind_address = "${http_bind_ip}:${http_bind_port}"
 
+  if $http_external_uri {
+    $external_uri_config = {
+      'http_external_uri'  => $http_external_uri,
+    }
+  }
+  else {
+    $external_uri_config = {}
+  }
+
   class { 'graylog::server':
     package_version => $package_version,
     # https://docs.graylog.org/en/3.2/pages/getting_started/configure.html
     config          => {
-      'password_secret'    => $password_secret,       # Fill in your password secret
-      'root_password_sha2' => sha256($root_password), # Fill in your root password hash
+      'password_secret'    => $password_secret,
+      'root_password_sha2' => sha256($root_password),
       'is_master'          => $is_master,
       'http_bind_address'  => $http_bind_address,
-      'http_external_uri'  => $http_external_uri,
-    }
+    } + $external_uri_config,
   }
 }
