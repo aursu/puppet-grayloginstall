@@ -1,9 +1,22 @@
 # @summary A short summary of the purpose of this class
 #
-# A description of what this class does
-#
 # @example
 #   include grayloginstall::server
+#
+# @param http_bind_ip
+#   IP part of elasticsearch setting http_bind_address
+#   Default is 127.0.0.1
+#   See https://docs.graylog.org/en/3.2/pages/configuration/web_interface.html
+#
+# @param http_bind_port
+#   Port part of elasticsearch setting http_bind_address
+#   Default is 9000
+#   See https://docs.graylog.org/en/3.2/pages/configuration/web_interface.html
+#
+# @param http_external_uri
+#   The public URI of Graylog which will be used by the Graylog web interface to communicate with the Graylog REST API. Graylog
+#   web interface.
+#
 class grayloginstall::server (
   String  $root_password,
   String[64]
@@ -12,6 +25,8 @@ class grayloginstall::server (
   String  $package_version      = '3.3.0',
 
   Boolean $manage_mongodb       = true,
+  Array[Stdlib::IP::Address]
+          $mongodb_bind_ip      = ['127.0.0.1'],
 
   Boolean $manage_elastic       = true,
   Grayloginstall::NetworkHost
@@ -22,6 +37,12 @@ class grayloginstall::server (
   Boolean $manage_java          = true,
   Optional[Integer[0,1]]
           $repo_sslverify       = undef,
+  Boolean $is_master            = false,
+  Stdlib::IP::Address
+          $http_bind_ip         = '127.0.0.1',
+  Integer $http_bind_port       = 9000,
+  Optional[Stdlib::HTTPUrl]
+          $http_external_uri    = undef,
 )
 {
   if $manage_java {
@@ -58,12 +79,17 @@ class grayloginstall::server (
     mode => '0600',
   }
 
+  $http_bind_address = "${http_bind_ip}:${http_bind_port}"
+
   class { 'graylog::server':
     package_version => $package_version,
     # https://docs.graylog.org/en/3.2/pages/getting_started/configure.html
     config          => {
       'password_secret'    => $password_secret,       # Fill in your password secret
       'root_password_sha2' => sha256($root_password), # Fill in your root password hash
+      'is_master'          => $is_master,
+      'http_bind_address'  => $http_bind_address,
+      'http_external_uri'  => $http_external_uri,
     }
   }
 }
