@@ -15,8 +15,7 @@ Puppet::Functions.create_function(:'grayloginstall::discovery_hosts', Puppet::Fu
   def exported_collector_collect(scope, lookup_type, equery = nil)
     resources = scope.compiler.resources.select { |r| r.type == lookup_type && r.exported? }
 
-    found = Puppet::Resource.indirection
-                            .search(lookup_type, host: scope.compiler.node.name, filter: equery, scope: scope)
+    found = Puppet::Resource.indirection.search(lookup_type, host: scope.compiler.node.name, filter: equery, scope: scope)
 
     found_resources = found.map { |x| x.is_a?(Puppet::Parser::Resource) ? x : x.to_resource(scope) }
 

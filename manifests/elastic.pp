@@ -30,30 +30,54 @@
 #   See https://www.elastic.co/guide/en/elasticsearch/reference/6.8/discovery-settings.html#unicast.hosts
 #
 class grayloginstall::elastic (
-  String  $cluster_name         = 'graylog',
   String  $version              = '6.8.10',
-  Grayloginstall::NetworkHost
-          $network_host         = '_site_',
   Integer $minimum_master_nodes = 2,
-
   Array[Stdlib::IP::Address]
           $discovery_seed_hosts = ['127.0.0.1', '::1'],
+  String  $cluster_name         = 'graylog',
+  Optional[Grayloginstall::NetworkHost]
+          $network_host         = undef,
 )
 {
-  # self export
-  @@grayloginstall::elastic_host { $::facts['fqdn']:
-    cluster_name => $cluster_name,
+  include grayloginstall::cluster
+  $cluster_discovery_seed_hosts = $grayloginstall::cluster::elastic_seed_hosts
+  $cluster_network_host = $grayloginstall::cluster::ipaddr
+
+  # parameter network_host has higher priority over cluster settings
+  if $network_host {
+    $config_network_host = $network_host
   }
-  # import all
-  Grayloginstall::Elastic_host <<| cluster_name == $cluster_name |>>
+  # IP address of network interface that belongs to subnet specified via grayloginstall::cluster::subnet
+  # if subnet is not specified - default IP address (IP address of inerface that default route set to)
+  # Undef if grayloginstall::cluster::fallback_default is false and cluster subnet is  not specified
+  elsif $cluster_network_host {
+    $config_network_host = $cluster_network_host
+  }
+  else {
+    # fallback to module default
+    $config_network_host = '_site_'
+  }
 
-  $discovery_hosts = grayloginstall::discovery_hosts('Grayloginstall::Elastic_host', 'ip', ['cluster_name', '==', $cluster_name])
-
+  # handle discovery seed hosts first (by removing from provided IP set all self IP addresses)
   $remote_discovery_seed_hosts = $discovery_seed_hosts.filter |$addr| {
-    $addr in ['127.0.0.1', '::1'] or
+    # filter out local (self) addresses and loopbacks
     ! grayloginstall::selfaddr($addr)
   }
-  $config_discovery_seed_hosts = grayloginstall::configaddr($remote_discovery_seed_hosts)
+
+  if empty($remote_discovery_seed_hosts) {
+    # try cluster discovery settings
+    if empty($cluster_discovery_seed_hosts) {
+      # fallback  to default value if cluster not exists
+      $config_discovery_seed_hosts = grayloginstall::configaddr(['127.0.0.1', '::1'])
+    }
+    else {
+      # use cluster discovery addresses
+      $config_discovery_seed_hosts = grayloginstall::configaddr($cluster_discovery_seed_hosts)
+    }
+  }
+  else {
+    $config_discovery_seed_hosts = grayloginstall::configaddr($cluster_discovery_seed_hosts)
+  }
 
   # https://www.elastic.co/guide/en/elasticsearch/reference/6.7/rpm.html
   class { 'elasticsearch':
@@ -77,7 +101,7 @@ class grayloginstall::elastic (
 
   elasticsearch::instance { 'graylog':
     config => {
-      'network.host'                       => $network_host,
+      'network.host'                       => $config_network_host,
       'discovery.zen.ping.unicast.hosts'   => $config_discovery_seed_hosts,
       'discovery.zen.minimum_master_nodes' => $minimum_master_nodes,
     },

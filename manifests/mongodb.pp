@@ -15,14 +15,7 @@ class grayloginstall::mongodb (
           $repo_sslverify          = undef,
 )
 {
-  # self export
-  @@grayloginstall::mongodb_host { $::facts['fqdn']:
-    cluster_name => $cluster_name,
-  }
-  # import all
-  Grayloginstall::Mongodb_host <<| cluster_name == $cluster_name |>>
-
-  $discovery_hosts = grayloginstall::discovery_hosts('Grayloginstall::Mongodb_host', 'ip', ['cluster_name', '==', $cluster_name])
+  include grayloginstall::cluster
 
   # https://docs.mongodb.com/master/tutorial/install-mongodb-on-red-hat/
   #

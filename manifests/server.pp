@@ -43,10 +43,19 @@ class grayloginstall::server (
   Integer $http_bind_port       = 9000,
   Optional[Stdlib::HTTPUrl]
           $http_external_uri    = undef,
+  String  $cluster_name         = 'graylog',
+  Optional[Stdlib::IP::Address]
+          $cluster_network      = undef,
 )
 {
   if $manage_java {
     include grayloginstall::java
+  }
+
+  # define cluster settings
+  class { 'grayloginstall::cluster':
+    cluster_name => $cluster_name,
+    subnet       => $cluster_network,
   }
 
   if $manage_mongodb {
