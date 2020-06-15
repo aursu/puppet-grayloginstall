@@ -17,10 +17,10 @@ Puppet::Functions.create_function(:'grayloginstall::selfsubnet') do
     raise ArgumentError, "'grayloginstall::selfsubnet' parameter 'subnet' expects a Stdlib::IP::Address value, got #{subnet.inspect}" if subnet.nil?
 
     facts = closure_scope['facts']
-    interfaces = facts['networking']['interfaces'].select { |iface, data| data['ip'] || data['ip6'] }
+    interfaces = facts['networking']['interfaces'].select { |_iface, data| data['ip'] || data['ip6'] }
 
-    ip = interfaces.map { |iface, data| data['ip'] }
-    ip6 = interfaces.map { |iface, data| data['ip6'] }
+    ip = interfaces.map { |_iface, data| data['ip'] }
+    ip6 = interfaces.map { |_iface, data| data['ip6'] }
 
     (ip + ip6).select { |addr| subnet.include?(addr) }
   end
