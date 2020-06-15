@@ -14,9 +14,8 @@ Puppet::Functions.create_function(:'grayloginstall::selfaddr') do
     nil
   end
 
-  def selfaddr(addr, subnet = nil)
+  def selfaddr(addr)
     raise ArgumentError, "'grayloginstall::selfaddr' parameter 'addr' expects a Stdlib::IP::Address value, got #{addr.inspect}" unless validate_ip(addr)
-    subnet = validate_ip(subnet)
 
     facts = closure_scope.lookupvar('facts')
     interfaces = facts['networking']['interfaces'].select { |iface, data| data['ip'] || data['ip6'] }
@@ -24,9 +23,6 @@ Puppet::Functions.create_function(:'grayloginstall::selfaddr') do
     ip = interfaces.map { |iface, data| data['ip'] }
     ip6 = interfaces.map { |iface, data| data['ip6'] }
 
-    return false unless (ip + ip6).include? (addr)
-
-    return subnet.include?(addr) if subnet
-    true
+    (ip + ip6).include? (addr)
   end
 end
