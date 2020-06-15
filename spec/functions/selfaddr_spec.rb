@@ -128,6 +128,14 @@ describe 'grayloginstall::selfaddr' do
       it {
         is_expected.to run.with_params('fe80::c252:fce7:8638:1604').and_return(true)
       }
+
+      it {
+        is_expected.to run.with_params('::1').and_return(true)
+      }
+
+      it {
+        is_expected.to run.with_params('127.0.0.2').and_return(true)
+      }
     end
   end
 end
