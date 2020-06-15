@@ -5,10 +5,10 @@
 # @example
 #   grayloginstall::mongodb_host { 'namevar': }
 define grayloginstall::mongodb_host (
+  Stdlib::IP::Address
+          $ip,
   Stdlib::Fqdn
           $hostname     = $::facts['fqdn'],
-  Stdlib::IP::Address
-          $ip           = $::facts['networking']['ip'],
   Stdlib::Unixpath
           $hosts_target = '/etc/graylog/mongodb.hosts',
   String  $cluster_name = 'graylog',
