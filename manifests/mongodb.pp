@@ -22,8 +22,7 @@ class grayloginstall::mongodb (
   # import all
   Grayloginstall::Mongodb_host <<| cluster_name == $cluster_name |>>
 
-  $discovery_hosts = grayloginstall::discovery_hosts('grayloginstall::mongodb_host', 'ip')
-  notify { $discovery_hosts: }
+  $discovery_hosts = grayloginstall::discovery_hosts('Grayloginstall::Mongodb_host', 'ip', ['cluster_name', '==', $cluster_name])
 
   # https://docs.mongodb.com/master/tutorial/install-mongodb-on-red-hat/
   #

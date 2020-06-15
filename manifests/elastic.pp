@@ -40,6 +40,15 @@ class grayloginstall::elastic (
           $discovery_seed_hosts = ['127.0.0.1', '::1'],
 )
 {
+  # self export
+  @@grayloginstall::elastic_host { $::facts['fqdn']:
+    cluster_name => $cluster_name,
+  }
+  # import all
+  Grayloginstall::Elastic_host <<| cluster_name == $cluster_name |>>
+
+  $discovery_hosts = grayloginstall::discovery_hosts('Grayloginstall::Elastic_host', 'ip', ['cluster_name', '==', $cluster_name])
+
   $remote_discovery_seed_hosts = $discovery_seed_hosts.filter |$addr| {
     $addr in ['127.0.0.1', '::1'] or
     ! grayloginstall::selfaddr($addr)
