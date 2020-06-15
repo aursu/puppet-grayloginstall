@@ -1,4 +1,4 @@
-function grayloginstall::selfaddr(Stdlib::IP::Address $addr) >> Boolean {
+function grayloginstall::pup_selfaddr(Stdlib::IP::Address $addr) >> Boolean {
   $interfaces = $::facts['networking']['interfaces'].filter |$iface| { $iface[1]['ip'] =~ Stdlib::IP::Address }
 
   $ip = $interfaces.map |$iface, $data| { $data['ip'] }
