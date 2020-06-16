@@ -5,7 +5,10 @@ require 'spec_helper'
 describe 'grayloginstall::mongodb_host' do
   let(:title) { 'namevar' }
   let(:params) do
-    {}
+    {
+      'ip'           => '192.168.200.225',
+      'cluster_name' => 'graylog',
+    }
   end
 
   on_supported_os.each do |os, os_facts|
