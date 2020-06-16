@@ -31,9 +31,9 @@ class grayloginstall::cluster (
     $ipaddr = $addr[0]
   }
 
-  if $ipaddr {
-    $hostname = $::facts['fqdn']
+  $hostname = $::facts['fqdn']
 
+  if $ipaddr {
     # elastic export
     @@grayloginstall::elastic_host { $hostname:
       cluster_name => $cluster_name,
