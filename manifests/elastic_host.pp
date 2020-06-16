@@ -7,11 +7,11 @@
 define grayloginstall::elastic_host (
   Stdlib::IP::Address
           $ip,
+  String  $cluster_name,
   Stdlib::Fqdn
           $hostname     = $::facts['fqdn'],
   Stdlib::Unixpath
           $hosts_target = '/etc/graylog/elasticsearch.hosts',
-  String  $cluster_name = 'graylog',
 ) {
   $elastic_hostname = "elastic.${hostname}"
   host { $elastic_hostname:

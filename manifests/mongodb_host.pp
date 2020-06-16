@@ -7,11 +7,11 @@
 define grayloginstall::mongodb_host (
   Stdlib::IP::Address
           $ip,
+  String  $cluster_name,
   Stdlib::Fqdn
           $hostname     = $::facts['fqdn'],
   Stdlib::Unixpath
           $hosts_target = '/etc/graylog/mongodb.hosts',
-  String  $cluster_name = 'graylog',
 ) {
   $mongodb_hostname = "mongodb.${hostname}"
   host { $mongodb_hostname:

@@ -32,7 +32,6 @@
 class grayloginstall::elastic (
   String  $version              = $grayloginstall::params::elastic_version,
   Integer $minimum_master_nodes = 2,
-  String  $cluster_name         = 'graylog',
   Optional[Grayloginstall::NetworkHost]
           $network_host         = undef,
   Optional[Array[Stdlib::IP::Address]]
@@ -44,6 +43,7 @@ class grayloginstall::elastic (
   $default_discovery_seed_hosts = $grayloginstall::params::elastic_discovery_seed_hosts
   $cluster_network_host         = $grayloginstall::cluster::ipaddr
   $cluster_discovery_seed_hosts = $grayloginstall::cluster::elastic_seed_hosts
+  $cluster_name                 = $grayloginstall::cluster::cluster_name
 
   # parameter network_host has higher priority over cluster settings
   if $network_host {

@@ -5,11 +5,12 @@
 # @example
 #   include grayloginstall::cluster
 class grayloginstall::cluster (
-  String  $cluster_name     = 'graylog',
+  String  $cluster_name     = $grayloginstall::params::cluster_name,
   Boolean $fallback_default = true,
   Optional[Stdlib::IP::Address]
           $subnet           = undef,
-){
+) inherits grayloginstall::params
+{
   if $subnet {
     $addr = grayloginstall::selfsubnet($subnet)
   }

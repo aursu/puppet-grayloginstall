@@ -43,10 +43,10 @@ class grayloginstall::server (
   Integer $http_bind_port       = 9000,
   Optional[Stdlib::HTTPUrl]
           $http_external_uri    = undef,
-  String  $cluster_name         = 'graylog',
+  String  $cluster_name         = $grayloginstall::params::cluster_name,
   Optional[Stdlib::IP::Address]
           $cluster_network      = undef,
-)
+) inherits grayloginstall::params
 {
   if $manage_java {
     include grayloginstall::java

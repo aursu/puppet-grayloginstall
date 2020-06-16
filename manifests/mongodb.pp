@@ -5,7 +5,6 @@
 # @example
 #   include grayloginstall::mongodb
 class grayloginstall::mongodb (
-  String  $cluster_name            = 'graylog',
   Boolean $manage_open_files_limit = true,
   Boolean $manage_selinux          = false,
   String  $version                 = '4.2.7',
