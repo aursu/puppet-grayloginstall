@@ -29,10 +29,10 @@ class grayloginstall::server (
           $mongodb_bind_ip      = ['127.0.0.1'],
 
   Boolean $manage_elastic       = true,
-  Grayloginstall::NetworkHost
-          $elastic_network_host = '_site_',
+  Optional[Grayloginstall::NetworkHost]
+          $elastic_network_host = undef,
   Optional[Array[Stdlib::IP::Address]]
-          $elastic_seed_hosts   = ['127.0.0.1', '::1'],
+          $elastic_seed_hosts   = undef,
 
   Boolean $manage_java          = true,
   Optional[Integer[0,1]]
