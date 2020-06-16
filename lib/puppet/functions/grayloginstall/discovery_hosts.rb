@@ -15,7 +15,14 @@ Puppet::Functions.create_function(:'grayloginstall::discovery_hosts', Puppet::Fu
   def exported_collector_collect(scope, lookup_type, equery = nil)
     resources = scope.compiler.resources.select { |r| r.type == lookup_type && r.exported? }
 
-    found = Puppet::Resource.indirection.search(lookup_type, host: scope.compiler.node.name, filter: equery, scope: scope)
+    # it makes no sense without PuppetDB
+    # TODO: create YAML backend for Rspec tesing based on
+    #       https://github.com/puppetlabs/puppet/blob/master/acceptance/tests/language/exported_resources.rb
+    found = if Puppet[:storeconfigs]
+              Puppet::Resource.indirection.search(lookup_type, host: scope.compiler.node.name, filter: equery, scope: scope)
+            else
+              []
+            end
 
     found_resources = found.map { |x| x.is_a?(Puppet::Parser::Resource) ? x : x.to_resource(scope) }
 
