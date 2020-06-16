@@ -41,6 +41,7 @@ class grayloginstall::elastic (
   include grayloginstall::cluster
 
   $default_discovery_seed_hosts = $grayloginstall::params::elastic_discovery_seed_hosts
+
   $cluster_network_host         = $grayloginstall::cluster::ipaddr
   $cluster_discovery_seed_hosts = $grayloginstall::cluster::elastic_seed_hosts
   $cluster_name                 = $grayloginstall::cluster::cluster_name

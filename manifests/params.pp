@@ -9,4 +9,7 @@ class grayloginstall::params {
   $elastic_version = '6.8.10'
   $elastic_network_host = '_site_'
   $elastic_discovery_seed_hosts = ['127.0.0.1', '::1']
+
+  $mongodb_version = '4.2.7'
+  $mongodb_bind_ip = ['127.0.0.1']
 }

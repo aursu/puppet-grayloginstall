@@ -25,8 +25,8 @@ class grayloginstall::server (
   String  $package_version      = '3.3.0',
 
   Boolean $manage_mongodb       = true,
-  Array[Stdlib::IP::Address]
-          $mongodb_bind_ip      = ['127.0.0.1'],
+  Optional[Array[Stdlib::IP::Address]]
+          $mongodb_bind_ip      = undef,
 
   Boolean $manage_elastic       = true,
   Optional[Grayloginstall::NetworkHost]
@@ -35,8 +35,10 @@ class grayloginstall::server (
           $elastic_seed_hosts   = undef,
 
   Boolean $manage_java          = true,
+
   Optional[Integer[0,1]]
           $repo_sslverify       = undef,
+
   Boolean $is_master            = false,
   Stdlib::IP::Address
           $http_bind_ip         = '127.0.0.1',
@@ -61,6 +63,7 @@ class grayloginstall::server (
   if $manage_mongodb {
     class { 'grayloginstall::mongodb':
       repo_sslverify => $repo_sslverify,
+      bind_ip        => $mongodb_bind_ip,
     }
   }
 

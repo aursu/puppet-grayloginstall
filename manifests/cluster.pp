@@ -11,6 +11,8 @@ class grayloginstall::cluster (
           $subnet           = undef,
 ) inherits grayloginstall::params
 {
+  $hostname = $::facts['fqdn']
+
   if $subnet {
     $addr = grayloginstall::selfsubnet($subnet)
   }
@@ -18,7 +20,11 @@ class grayloginstall::cluster (
     $addr = []
   }
 
-  if empty($addr) {
+  if $addr[0] {
+    # pick first address out of set
+    $ipaddr = $addr[0]
+  }
+  else {
     if $fallback_default {
       # fallback to default interface (not safe if it is public)
       $ipaddr = $::facts['networking']['ip']
@@ -27,12 +33,6 @@ class grayloginstall::cluster (
       $ipaddr = undef
     }
   }
-  else {
-    # pick first address out of set
-    $ipaddr = $addr[0]
-  }
-
-  $hostname = $::facts['fqdn']
 
   if $ipaddr {
     # elastic export

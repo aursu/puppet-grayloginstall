@@ -7,14 +7,30 @@
 class grayloginstall::mongodb (
   Boolean $manage_open_files_limit = true,
   Boolean $manage_selinux          = false,
-  String  $version                 = '4.2.7',
-  Array[Stdlib::IP::Address]
-          $bind_ip                 = ['127.0.0.1'],
+  String  $version                 = $grayloginstall::params::mongodb_version,
+  Optional[Array[Stdlib::IP::Address]]
+          $bind_ip                 = undef,
   Optional[Integer[0,1]]
           $repo_sslverify          = undef,
-)
+) inherits grayloginstall::params
 {
   include grayloginstall::cluster
+  $cluster_bind_ip        = $grayloginstall::cluster::ipaddr
+
+  # parameter bind_ip has higher priority over cluster settings
+  if $bind_ip and $bind_ip[0] {
+    $config_bind_ip = $bind_ip
+  }
+  # IP address of network interface that belongs to subnet specified via grayloginstall::cluster::subnet
+  # if subnet is not specified - default IP address (IP address of inerface that default route set to)
+  # Undef if grayloginstall::cluster::fallback_default is false and cluster subnet is not specified
+  elsif $cluster_bind_ip {
+    $config_bind_ip = [ $cluster_bind_ip ]
+  }
+  else {
+    # fallback to module default
+    $config_bind_ip = $grayloginstall::params::mongodb_bind_ip
+  }
 
   # https://docs.mongodb.com/master/tutorial/install-mongodb-on-red-hat/
   #
@@ -56,7 +72,7 @@ class grayloginstall::mongodb (
   }
 
   class { 'mongodb::server':
-    bind_ip => $bind_ip,
+    bind_ip => $config_bind_ip,
   }
 
   # TODO: systemd service drop-in file for MongoDB service
