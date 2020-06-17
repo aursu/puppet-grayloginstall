@@ -4,7 +4,7 @@
 #   include grayloginstall::server
 #
 # @param http_bind_ip
-#   IP part of graylog setting http_bind_address
+#   IP part of graylog setting http_bind_address (it has higher priority than http_bind_external)
 #   Default is 127.0.0.1
 #   See https://docs.graylog.org/en/3.2/pages/configuration/web_interface.html
 #
@@ -16,6 +16,15 @@
 # @param http_external_uri
 #   The public URI of Graylog which will be used by the Graylog web interface to communicate with the Graylog REST API. Graylog
 #   web interface.
+#
+# @param external_network
+#   In case of private and public network assigned to server (or multiple networks) - it is possible to specify external
+#   network to bind on WEB interface (see http_bind_external)
+#
+# @param http_bind_external
+#   Whether to bind WEB interface to external network (if provided - see external_network) or to fallback to default server IP
+#   (see $::facts['networking']['ip']). If specified both http_bind_ip and http_bind_external than http_bind_ip has higher
+#   priority
 #
 class grayloginstall::server (
   String  $root_password,
