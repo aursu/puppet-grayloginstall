@@ -3,8 +3,14 @@
 # @example
 #   include grayloginstall::server
 #
+# @param root_password
+#   Root password to pass to SHA2 function in order to set up `root_password_sha2` (Graylog)
+#
+# @param password_secret
+#   Secret that is used for password encryption and salting (Graylog)
+#
 # @param http_bind_ip
-#   IP part of graylog setting http_bind_address (it has higher priority than http_bind_external)
+#   IP part of graylog setting `http_bind_address` (it has higher priority than `http_bind_external`)
 #   Default is 127.0.0.1
 #   See https://docs.graylog.org/en/3.2/pages/configuration/web_interface.html
 #
@@ -22,7 +28,7 @@
 #   network to bind on WEB interface (see http_bind_external)
 #
 # @param http_bind_external
-#   Whether to bind WEB interface to external network (if provided - see external_network) or to fallback to default server IP
+#   Whether to bind WEB interface to external network (if provided - see `external_network`) or to fallback to default server IP
 #   (see $::facts['networking']['ip']). If specified both http_bind_ip and http_bind_external than http_bind_ip has higher
 #   priority
 #
@@ -34,34 +40,43 @@ class grayloginstall::server (
   String  $major_version        = $grayloginstall::params::graylog_major,
 
   Boolean $manage_mongodb       = true,
+
   Optional[Array[Stdlib::IP::Address]]
           $mongodb_bind_ip      = undef,
 
   Boolean $manage_elastic       = true,
+
   Optional[Grayloginstall::NetworkHost]
           $elastic_network_host = undef,
   Optional[Array[Stdlib::IP::Address]]
           $elastic_seed_hosts   = undef,
+  Boolean $elastic_master_only  = false,
 
   Boolean $manage_java          = true,
 
   Optional[Integer[0,1]]
           $repo_sslverify       = undef,
 
-  Boolean $is_master            = false,
-  Optional[Stdlib::IP::Address]
-          $http_bind_ip         = undef,
-  Boolean $http_bind_external   = true,
-
-  Integer $http_bind_port       = 9000,
-  Optional[Stdlib::HTTPUrl]
-          $http_external_uri    = undef,
-  String  $cluster_name         = $grayloginstall::params::cluster_name,
   Optional[Stdlib::IP::Address]
           $cluster_network      = undef,
   Optional[Stdlib::IP::Address]
           $external_network     = undef,
-  Boolean $elastic_master_only  = false,
+
+  Optional[Stdlib::IP::Address]
+          $http_bind_ip         = undef,
+  Integer $http_bind_port       = $grayloginstall::params::http_bind_port,
+  Boolean $http_bind_external   = true,
+
+  Optional[Stdlib::Fqdn]
+          $http_server          = undef,
+  Boolean $http_secure          = false,
+  Optional[String]
+          $http_ssl_cert        = undef,
+  Optional[String]
+          $http_ssl_key         = undef,
+
+  String  $cluster_name         = $grayloginstall::params::cluster_name,
+  Boolean $is_master            = false,
 ) inherits grayloginstall::params
 {
   if $manage_java {
@@ -124,7 +139,14 @@ class grayloginstall::server (
 
   $http_bind_address = "${config_http_bind_ip}:${http_bind_port}"
 
-  if $http_external_uri {
+  if $http_server {
+    if $http_secure {
+      $http_external_uri = "https://${http_server}"
+    }
+    else {
+      $http_external_uri = "http://${http_server}"
+    }
+
     $external_uri_config = {
       'http_external_uri'  => $http_external_uri,
     }
@@ -137,10 +159,22 @@ class grayloginstall::server (
     package_version => $package_version,
     # https://docs.graylog.org/en/3.2/pages/getting_started/configure.html
     config          => {
-      'password_secret'    => $password_secret,
-      'root_password_sha2' => sha256($root_password),
-      'is_master'          => $is_master,
-      'http_bind_address'  => $http_bind_address,
-    } + $external_uri_config,
+                          'password_secret'    => $password_secret,
+                          'root_password_sha2' => sha256($root_password),
+                          'is_master'          => $is_master,
+                          'http_bind_address'  => $http_bind_address,
+                        } +
+                        $external_uri_config,
+  }
+
+  if $http_server {
+    class { 'grayloginstall::web':
+      server_name    => $http_server,
+      ssl            => $http_secure,
+      ssl_cert       => $http_ssl_cert,
+      ssl_key        => $http_ssl_key,
+      http_bind_ip   => $config_http_bind_ip,
+      http_bind_port => $http_bind_port,
+    }
   }
 }

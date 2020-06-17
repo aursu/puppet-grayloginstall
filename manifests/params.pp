@@ -19,4 +19,5 @@ class grayloginstall::params {
   $graylog_major = join($rel[0,2], '.')
 
   $http_bind_ip = '127.0.0.1'
+  $http_bind_port = 9000
 }
