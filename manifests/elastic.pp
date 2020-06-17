@@ -11,17 +11,17 @@
 # @param version
 #   Elasticsearch version (Graylog 3 does not work with Elasticsearch 7.x)
 #
-# @param network_host
-#   The node will bind to this hostname or IP address and publish (advertise) this host to other nodes in the cluster. Accepts
-#   an IP address, hostname, a special value.
-#   Default is _site_ (any site-local addresses on the system, for example 192.168.0.1)
-#   See https://www.elastic.co/guide/en/elasticsearch/reference/6.8/modules-network.html#network-interface-values
-#
 # @param minimum_master_nodes
 #   it is vital to configure the discovery.zen.minimum_master_nodes setting so that each master-eligible node knows the minimum
 #   number of master-eligible nodes that must be visible in order to form a cluster.
 #   Default is 2 (avoiding split brain in case of 2-3 nodes)
 #   See https://www.elastic.co/guide/en/elasticsearch/reference/6.8/discovery-settings.html#minimum_master_nodes
+#
+# @param network_host
+#   The node will bind to this hostname or IP address and publish (advertise) this host to other nodes in the cluster. Accepts
+#   an IP address, hostname, a special value.
+#   Default is _site_ (any site-local addresses on the system, for example 192.168.0.1)
+#   See https://www.elastic.co/guide/en/elasticsearch/reference/6.8/modules-network.html#network-interface-values
 #
 # @param discovery_seed_hosts
 #   seed list of other nodes in the cluster.
@@ -36,6 +36,7 @@ class grayloginstall::elastic (
           $network_host         = undef,
   Optional[Array[Stdlib::IP::Address]]
           $discovery_seed_hosts = undef,
+  Boolean $master_only          = false,
 ) inherits grayloginstall::params
 {
   include grayloginstall::cluster
@@ -104,12 +105,23 @@ class grayloginstall::elastic (
     mode => '0600',
   }
 
+  if $master_only {
+    $config_master_only = {
+      'node.master' => true,
+      'node.data'   => false,
+    }
+  }
+  else {
+    $config_master_only = {}
+  }
+
   elasticsearch::instance { 'graylog':
     config => {
-      'network.host'                       => $config_network_host,
-      'discovery.zen.ping.unicast.hosts'   => $config_discovery_seed_hosts,
-      'discovery.zen.minimum_master_nodes' => $minimum_master_nodes,
-    },
+                'network.host'                       => $config_network_host,
+                'discovery.zen.ping.unicast.hosts'   => $config_discovery_seed_hosts,
+                'discovery.zen.minimum_master_nodes' => $minimum_master_nodes,
+              } +
+              $config_master_only,
   }
 
   Class['elastic_stack::repo']

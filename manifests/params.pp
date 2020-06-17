@@ -12,4 +12,11 @@ class grayloginstall::params {
 
   $mongodb_version = '4.2.7'
   $mongodb_bind_ip = ['127.0.0.1']
+
+  $graylog_version = '3.3.0'
+
+  $rel = split($graylog_version, '[.]')
+  $graylog_major = join($rel[0,2], '.')
+
+  $http_bind_ip = '127.0.0.1'
 }

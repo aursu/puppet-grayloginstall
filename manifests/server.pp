@@ -4,12 +4,12 @@
 #   include grayloginstall::server
 #
 # @param http_bind_ip
-#   IP part of elasticsearch setting http_bind_address
+#   IP part of graylog setting http_bind_address
 #   Default is 127.0.0.1
 #   See https://docs.graylog.org/en/3.2/pages/configuration/web_interface.html
 #
 # @param http_bind_port
-#   Port part of elasticsearch setting http_bind_address
+#   Port part of graylog setting http_bind_address
 #   Default is 9000
 #   See https://docs.graylog.org/en/3.2/pages/configuration/web_interface.html
 #
@@ -21,8 +21,8 @@ class grayloginstall::server (
   String  $root_password,
   String[64]
           $password_secret,
-  String  $major_version        = '3.3',
-  String  $package_version      = '3.3.0',
+  String  $package_version      = $grayloginstall::params::graylog_version,
+  String  $major_version        = $grayloginstall::params::graylog_major,
 
   Boolean $manage_mongodb       = true,
   Optional[Array[Stdlib::IP::Address]]
@@ -40,14 +40,19 @@ class grayloginstall::server (
           $repo_sslverify       = undef,
 
   Boolean $is_master            = false,
-  Stdlib::IP::Address
-          $http_bind_ip         = '127.0.0.1',
+  Optional[Stdlib::IP::Address]
+          $http_bind_ip         = undef,
+  Boolean $http_bind_external   = true,
+
   Integer $http_bind_port       = 9000,
   Optional[Stdlib::HTTPUrl]
           $http_external_uri    = undef,
   String  $cluster_name         = $grayloginstall::params::cluster_name,
   Optional[Stdlib::IP::Address]
           $cluster_network      = undef,
+  Optional[Stdlib::IP::Address]
+          $external_network     = undef,
+  Boolean $elastic_master_only  = false,
 ) inherits grayloginstall::params
 {
   if $manage_java {
@@ -56,8 +61,9 @@ class grayloginstall::server (
 
   # define cluster settings
   class { 'grayloginstall::cluster':
-    cluster_name => $cluster_name,
-    subnet       => $cluster_network,
+    cluster_name    => $cluster_name,
+    subnet          => $cluster_network,
+    external_subnet => $external_network,
   }
 
   if $manage_mongodb {
@@ -71,6 +77,7 @@ class grayloginstall::server (
     class { 'grayloginstall::elastic':
       network_host         => $elastic_network_host,
       discovery_seed_hosts => $elastic_seed_hosts,
+      master_only          => $elastic_master_only,
     }
   }
 
@@ -96,7 +103,17 @@ class grayloginstall::server (
     mode   => '0755',
   }
 
-  $http_bind_address = "${http_bind_ip}:${http_bind_port}"
+  if $http_bind_ip {
+    $config_http_bind_ip = $http_bind_ip
+  }
+  elsif $http_bind_external {
+    $config_http_bind_ip = $grayloginstall::cluster::extip
+  }
+  else {
+    $config_http_bind_ip = $grayloginstall::params::http_bind_ip
+  }
+
+  $http_bind_address = "${config_http_bind_ip}:${http_bind_port}"
 
   if $http_external_uri {
     $external_uri_config = {

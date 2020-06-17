@@ -9,6 +9,8 @@ class grayloginstall::cluster (
   Boolean $fallback_default = true,
   Optional[Stdlib::IP::Address]
           $subnet           = undef,
+  Optional[Stdlib::IP::Address]
+          $external_subnet  = undef,
 ) inherits grayloginstall::params
 {
   $hostname = $::facts['fqdn']
@@ -48,6 +50,22 @@ class grayloginstall::cluster (
       ip           => $ipaddr,
       hostname     => $hostname,
     }
+  }
+
+  if $external_subnet {
+    $ext = grayloginstall::selfsubnet($external_subnet)
+  }
+  else {
+    $ext = []
+  }
+
+  if $ext[0] {
+    # pick first address out of set
+    $extip = $ext[0]
+  }
+  else {
+    # default interface
+    $extip = $::facts['networking']['ip']
   }
 
   Grayloginstall::Elastic_host <<| cluster_name == $cluster_name |>>
