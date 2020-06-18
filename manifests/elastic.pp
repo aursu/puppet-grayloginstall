@@ -64,10 +64,7 @@ class grayloginstall::elastic (
 
   # handle provided discovery seed hosts first
   if $discovery_seed_hosts and $discovery_seed_hosts[0] {
-    $remote_discovery_seed_hosts = $discovery_seed_hosts.filter |$addr| {
-      # filter out local (self) addresses and loopbacks
-      ! grayloginstall::selfaddr($addr)
-    }
+    $remote_discovery_seed_hosts = $discovery_seed_hosts.filter |$addr| { ! grayloginstall::selfaddr($addr) }
   }
   else {
     $remote_discovery_seed_hosts = []
@@ -75,14 +72,20 @@ class grayloginstall::elastic (
 
   if $remote_discovery_seed_hosts[0]  {
     $config_discovery_seed_hosts = grayloginstall::configaddr($remote_discovery_seed_hosts)
+
+    $graylog_elasticsearch_hosts = $discovery_seed_hosts
   }
   # use cluster discovery settings
   elsif $cluster_discovery_seed_hosts[0] {
     $config_discovery_seed_hosts = grayloginstall::configaddr($cluster_discovery_seed_hosts)
+
+    $graylog_elasticsearch_hosts = $grayloginstall::cluster::elastic_discovery
   }
   else {
     # fallback  to default value if cluster not exists
     $config_discovery_seed_hosts = grayloginstall::configaddr($default_discovery_seed_hosts)
+
+    $graylog_elasticsearch_hosts = []
   }
 
   # https://www.elastic.co/guide/en/elasticsearch/reference/6.7/rpm.html

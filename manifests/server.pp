@@ -113,12 +113,7 @@ class grayloginstall::server (
       master_only          => $elastic_master_only,
     }
 
-    if $elastic_seed_hosts and $elastic_seed_hosts[0] {
-      $elastic_discovery_seed_hosts = $elastic_seed_hosts
-    }
-    else {
-      $elastic_discovery_seed_hosts = $grayloginstall::elastic::config_discovery_seed_hosts
-    }
+    $elastic_discovery_seed_hosts = $grayloginstall::elastic::graylog_elasticsearch_hosts
   }
   else {
     $elastic_discovery_seed_hosts = []
