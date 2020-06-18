@@ -79,6 +79,8 @@ class grayloginstall::server (
   Boolean $is_master            = false,
 ) inherits grayloginstall::params
 {
+  $elastic_port = $grayloginstall::params::elastic_port
+
   if $manage_java {
     include grayloginstall::java
   }
@@ -103,6 +105,16 @@ class grayloginstall::server (
       discovery_seed_hosts => $elastic_seed_hosts,
       master_only          => $elastic_master_only,
     }
+
+    if $elastic_seed_hosts and $elastic_seed_hosts[0] {
+      $elastic_discovery_seed_hosts = $elastic_seed_hosts
+    }
+    else {
+      $elastic_discovery_seed_hosts = $grayloginstall::elastic::config_discovery_seed_hosts
+    }
+  }
+  else {
+    $elastic_discovery_seed_hosts = []
   }
 
   # https://docs.graylog.org/en/3.3/pages/installation/os/centos.html
@@ -147,12 +159,25 @@ class grayloginstall::server (
       $http_external_uri = "http://${http_server}"
     }
 
-    $external_uri_config = {
+    $http_external_uri_config = {
       'http_external_uri'  => $http_external_uri,
     }
   }
   else {
-    $external_uri_config = {}
+    $http_external_uri_config = {}
+  }
+
+  if $elastic_discovery_seed_hosts[0] {
+    $elasticsearch_hosts = $elastic_discovery_seed_hosts.reduce([]) |$memo, $seed_host| {
+                            $memo + [ "http://${seed_host}:${elastic_port}" ]
+                          }
+
+    $elasticsearch_hosts_config = {
+                                    'elasticsearch_hosts' => join($elasticsearch_hosts, ',')
+                                  }
+  }
+  else {
+    $elasticsearch_hosts_config = {}
   }
 
   class { 'graylog::server':
@@ -164,7 +189,8 @@ class grayloginstall::server (
                           'is_master'          => $is_master,
                           'http_bind_address'  => $http_bind_address,
                         } +
-                        $external_uri_config,
+                        $http_external_uri_config +
+                        $elasticsearch_hosts_config,
   }
 
   if $http_server {
