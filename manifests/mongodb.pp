@@ -8,8 +8,14 @@ class grayloginstall::mongodb (
   Boolean $manage_open_files_limit = true,
   Boolean $manage_selinux          = false,
   String  $version                 = $grayloginstall::params::mongodb_version,
-  Optional[Array[Stdlib::IP::Address]]
-          $bind_ip                 = undef,
+  Optional[
+    Array[
+      Variant[
+        Stdlib::IP::Address,
+        Stdlib::Fqdn
+      ]
+    ]
+  ]       $bind_ip                 = undef,
   Optional[Integer[0,1]]
           $repo_sslverify          = undef,
 ) inherits grayloginstall::params
@@ -71,6 +77,7 @@ class grayloginstall::mongodb (
     before   => Class['mongodb::server'],
   }
 
+  class { 'mongodb::client': }
   class { 'mongodb::server':
     bind_ip => $config_bind_ip,
   }
