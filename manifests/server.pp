@@ -27,10 +27,13 @@
 #   In case of private and public network assigned to server (or multiple networks) - it is possible to specify external
 #   network to bind on WEB interface (see http_bind_external)
 #
+# @param http_bind_cluster
+#   Whether to bind WEB interface to cluster network (if provided - see `cluster_network`) or to fallback to `http_bind_external`
+#   (see below). If specified both http_bind_ip and http_bind_cluster than http_bind_ip option has higher priority
+#
 # @param http_bind_external
 #   Whether to bind WEB interface to external network (if provided - see `external_network`) or to fallback to default server IP
-#   (see $::facts['networking']['ip']). If specified both http_bind_ip and http_bind_external than http_bind_ip has higher
-#   priority
+#   (see $::facts['networking']['ip']). If specified  http_bind_ip or http_bind_cluster than these options have higher priority
 #
 class grayloginstall::server (
   String  $root_password,
@@ -71,6 +74,7 @@ class grayloginstall::server (
   Optional[Stdlib::IP::Address]
           $http_bind_ip         = undef,
   Integer $http_bind_port       = $grayloginstall::params::http_bind_port,
+  Boolean $http_bind_cluster    = true,
   Boolean $http_bind_external   = true,
 
   Boolean $enable_web           = true,
@@ -98,6 +102,8 @@ class grayloginstall::server (
     subnet          => $cluster_network,
     external_subnet => $external_network,
   }
+
+  $cluster_bind_ip = $grayloginstall::cluster::ipaddr
 
   if $manage_mongodb {
     class { 'grayloginstall::mongodb':
@@ -144,6 +150,9 @@ class grayloginstall::server (
   if $http_bind_ip {
     $config_http_bind_ip = $http_bind_ip
   }
+  elsif $http_bind_cluster and $cluster_bind_ip {
+    $config_http_bind_ip = $cluster_bind_ip
+  }
   elsif $http_bind_external {
     $config_http_bind_ip = $grayloginstall::cluster::extip
   }
@@ -155,10 +164,10 @@ class grayloginstall::server (
 
   if $enable_web and $http_server {
     if $http_secure {
-      $http_external_uri = "https://${http_server}"
+      $http_external_uri = "https://${http_server}/"
     }
     else {
-      $http_external_uri = "http://${http_server}"
+      $http_external_uri = "http://${http_server}/"
     }
 
     $http_external_uri_config = {

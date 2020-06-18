@@ -45,7 +45,7 @@ class grayloginstall::web  (
   # Allow httpd to can network connect
   # Allow access by executing:
   # setsebool -P httpd_can_network_connect 1
-  if $facts['selinux'] {
+  if $::facts['os']['selinux'] {
     selinux::boolean { 'httpd_can_network_connect': }
   }
 

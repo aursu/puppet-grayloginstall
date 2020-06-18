@@ -133,6 +133,25 @@ describe 'grayloginstall::server' do
             )
         }
       end
+
+      context 'when http server provided' do
+        let(:params) do
+          super().merge(
+            http_server: 'graylog.domain.tld',
+          )
+        end
+
+        it {
+          is_expected.to contain_class('graylog::server')
+            .with_config(
+              'password_secret'     => '1H3RGlH5vNZUYgLAD7hDya74PmsioxpJZIIIjiEHySOF68ozxxaIUbJSygIDGvMKAGvaVfYgbqDxk2Cji3sLqQ9MncSSE73o',
+              'root_password_sha2'  => Digest::SHA256.hexdigest('secret'),
+              'is_master'           => false,
+              'http_bind_address'   => '104.134.88.225:9000',
+              'http_external_uri'   => 'http://graylog.domain.tld/',
+            )
+        }
+      end
     end
   end
 end
