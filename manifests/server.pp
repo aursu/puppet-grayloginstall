@@ -41,8 +41,14 @@ class grayloginstall::server (
 
   Boolean $manage_mongodb       = true,
 
-  Optional[Array[Stdlib::IP::Address]]
-          $mongodb_bind_ip      = undef,
+  Optional[
+    Array[
+      Variant[
+        Stdlib::IP::Address,
+        Stdlib::Fqdn
+      ]
+    ]
+  ]       $mongodb_bind_ip      = undef,
 
   Boolean $manage_elastic       = true,
 
@@ -67,6 +73,7 @@ class grayloginstall::server (
   Integer $http_bind_port       = $grayloginstall::params::http_bind_port,
   Boolean $http_bind_external   = true,
 
+  Boolean $enable_web           = true,
   Optional[Stdlib::Fqdn]
           $http_server          = undef,
   Boolean $http_secure          = false,
@@ -151,7 +158,7 @@ class grayloginstall::server (
 
   $http_bind_address = "${config_http_bind_ip}:${http_bind_port}"
 
-  if $http_server {
+  if $enable_web and $http_server {
     if $http_secure {
       $http_external_uri = "https://${http_server}"
     }
@@ -193,7 +200,8 @@ class grayloginstall::server (
                         $elasticsearch_hosts_config,
   }
 
-  if $http_server {
+  # WEB interface (Nginx)
+  if $enable_web and $http_server {
     class { 'grayloginstall::web':
       server_name    => $http_server,
       ssl            => $http_secure,
