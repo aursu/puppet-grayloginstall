@@ -115,7 +115,7 @@ describe 'grayloginstall::server' do
 
       it { is_expected.to compile }
 
-      context "when elastic_seed_hosts provided" do
+      context 'when elastic_seed_hosts provided' do
         let(:params) do
           super().merge(
             elastic_seed_hosts: ['192.168.200.225', '192.168.200.226', '192.168.200.192'],
