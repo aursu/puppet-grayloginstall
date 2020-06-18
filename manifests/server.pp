@@ -163,6 +163,8 @@ class grayloginstall::server (
   $http_bind_address = "${config_http_bind_ip}:${http_bind_port}"
 
   if $enable_web and $http_server {
+    # dont't remove slash from `http_external_uri`
+    # com.github.joschi.jadconfig.ValidationException: "http_external_uri" must end with a slash ("/")
     if $http_secure {
       $http_external_uri = "https://${http_server}/"
     }
