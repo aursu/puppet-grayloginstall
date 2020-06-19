@@ -22,6 +22,7 @@ class grayloginstall::mongodb (
   include grayloginstall::cluster
   $cluster_discovery = $grayloginstall::cluster::mongo_discovery
   $cluster_bind_ip   = $grayloginstall::cluster::ipaddr
+  $mongodb_port      = $grayloginstall::params::mongodb_port
 
   # parameter bind_ip has higher priority over cluster settings
   if $bind_ip and $bind_ip[0] {
@@ -92,9 +93,10 @@ class grayloginstall::mongodb (
     }
 
     if $replset_members[0] {
+      $replset_members_port = $replset_members.map |$member| { "${member}:${mongodb_port}" }
       $config_replset = {
         replset         => $replica_set_name,
-        replset_members => $replset_members,
+        replset_members => $replset_members_port,
       }
     }
     else {
