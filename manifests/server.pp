@@ -201,12 +201,12 @@ class grayloginstall::server (
       $http_external_uri = "http://${http_server}/"
     }
 
-    $http_external_uri_config = {
+    $config_http_external_uri = {
       'http_external_uri'  => $http_external_uri,
     }
   }
   else {
-    $http_external_uri_config = {}
+    $config_http_external_uri = {}
   }
 
   if $config_elastic_seed_hosts[0] {
@@ -214,12 +214,12 @@ class grayloginstall::server (
                             $memo + [ "http://${seed_host}:${elastic_port}" ]
                           }
 
-    $elasticsearch_hosts_config = {
+    $config_elasticsearch_hosts = {
                                     'elasticsearch_hosts' => join($elasticsearch_url_list, ',')
                                   }
   }
   else {
-    $elasticsearch_hosts_config = {}
+    $config_elasticsearch_hosts = {}
   }
 
   # mongodb_uri
@@ -255,16 +255,16 @@ class grayloginstall::server (
 
     if $mongodb_uri_replset {
       # Replica Set
-      $mongodb_uri_config = { 'mongodb_uri' => "mongodb://${mongodb_hosts}/?replicaSet=${mongodb_uri_replset}" }
+      $config_mongodb_uri = { 'mongodb_uri' => "mongodb://${mongodb_hosts}/?replicaSet=${mongodb_uri_replset}" }
     }
     else {
-      $mongodb_uri_config = { 'mongodb_uri' => "mongodb://${mongodb_hosts}" }
+      $config_mongodb_uri = { 'mongodb_uri' => "mongodb://${mongodb_hosts}" }
     }
   }
   else {
     $mongodb_hosts = $mongodb_uri_addr_list[0]
     # Standalone
-    $mongodb_uri_config = { 'mongodb_uri' => "mongodb://${mongodb_hosts}:${mongodb_port}" }
+    $config_mongodb_uri = { 'mongodb_uri' => "mongodb://${mongodb_hosts}:${mongodb_port}" }
   }
 
   class { 'graylog::server':
@@ -276,9 +276,9 @@ class grayloginstall::server (
                           'is_master'          => $is_master,
                           'http_bind_address'  => $http_bind_address,
                         } +
-                        $http_external_uri_config +
-                        $elasticsearch_hosts_config +
-                        $mongodb_uri_config,
+                        $config_http_external_uri +
+                        $config_elasticsearch_hosts +
+                        $config_mongodb_uri,
   }
 
   # WEB interface (Nginx)
