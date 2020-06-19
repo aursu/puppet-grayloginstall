@@ -247,6 +247,7 @@ class grayloginstall::server (
   }
 
   # https://docs.mongodb.com/manual/reference/connection-string/
+  # TODO: https://docs.mongodb.com/manual/reference/connection-string/#connections-connection-options
   if $mongodb_uri_addr_list[1] {
     $mongodb_hosts_list = $mongodb_uri_addr_list.reduce([]) |$memo, $mongo_host| {
                             $memo + [ "${mongo_host}:${mongodb_port}" ]
