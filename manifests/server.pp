@@ -224,7 +224,7 @@ class grayloginstall::server (
 
   # mongodb_uri
   if $mongodb_addr and $mongodb_addr[0] {
-    $mongodb_uri = $mongodb_addr
+    $mongodb_uri_addr_list = $mongodb_addr
     if $mongodb_addr.length >= 3 {
       $mongodb_uri_replset = $mongodb_conn_replset_name
     }
@@ -234,11 +234,11 @@ class grayloginstall::server (
   }
   elsif $manage_mongodb {
     if $graylog_mongodb_replset_members[0] {
-      $mongodb_uri = $graylog_mongodb_replset_members
+      $mongodb_uri_addr_list = $graylog_mongodb_replset_members
       $mongodb_uri_replset = $mongodb_replset_name
     }
     else {
-      $mongodb_uri = $graylog_mongodb_bind_ip
+      $mongodb_uri_addr_list = $graylog_mongodb_bind_ip
       $mongodb_uri_replset = undef
     }
   }
@@ -247,11 +247,12 @@ class grayloginstall::server (
   }
 
   # https://docs.mongodb.com/manual/reference/connection-string/
-  if $mongodb_uri[1] {
-    $mongodb_hosts_list = $mongodb_uri.reduce([]) |$memo, $mongo_host| {
+  if $mongodb_uri_addr_list[1] {
+    $mongodb_hosts_list = $mongodb_uri_addr_list.reduce([]) |$memo, $mongo_host| {
                             $memo + [ "${mongo_host}:${mongodb_port}" ]
                           }
     $mongodb_hosts = join($mongodb_hosts_list, ',')
+
     if $mongodb_uri_replset {
       # Replica Set
       $mongodb_uri_config = { 'mongodb_uri' => "mongodb://${mongodb_hosts}/?replicaSet=${mongodb_uri_replset}" }
@@ -261,7 +262,7 @@ class grayloginstall::server (
     }
   }
   else {
-    $mongodb_hosts = $mongodb_uri[0]
+    $mongodb_hosts = $mongodb_uri_addr_list[0]
     # Standalone
     $mongodb_uri_config = { 'mongodb_uri' => "mongodb://${mongodb_hosts}:${mongodb_port}" }
   }
