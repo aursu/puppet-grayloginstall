@@ -94,6 +94,7 @@ class grayloginstall::mongodb (
 
     if $replset_members[0] {
       $replset_members_port = $replset_members.map |$member| { "${member}:${mongodb_port}" }
+
       $config_replset = {
         replset         => $replica_set_name,
         replset_members => $replset_members_port,
