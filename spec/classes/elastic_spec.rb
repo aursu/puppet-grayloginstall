@@ -112,7 +112,7 @@ describe 'grayloginstall::elastic' do
       it {
         is_expected.to contain_elasticsearch__instance('graylog')
           .with_config(
-            'network.host'                       => '104.134.88.225',
+            'network.host'                       => '_site_',
             'discovery.zen.ping.unicast.hosts'   => ['127.0.0.1', '[::1]'],
             'discovery.zen.minimum_master_nodes' => 2,
           )
@@ -130,18 +130,18 @@ describe 'grayloginstall::elastic' do
         it {
           is_expected.to contain_elasticsearch__instance('graylog')
             .with_config(
-              'network.host'                       => '104.134.88.225',
+              'network.host'                       => '_site_',
               'discovery.zen.ping.unicast.hosts'   => ['192.168.200.226', '[fe80::250:56ff:fea5:ef71]'],
               'discovery.zen.minimum_master_nodes' => 2,
             )
         }
       end
 
-      context 'with disabled fallback to default ip' do
+      context 'with enabled fallback to default ip' do
         let(:pre_condition) do
           <<-PRECOND
           class { 'grayloginstall::cluster':
-            fallback_default => false,
+            fallback_default => true,
           }
           PRECOND
         end
@@ -156,7 +156,7 @@ describe 'grayloginstall::elastic' do
         it {
           is_expected.to contain_elasticsearch__instance('graylog')
             .with_config(
-              'network.host'                       => '_site_',
+              'network.host'                       => '104.134.88.225',
               'discovery.zen.ping.unicast.hosts'   => ['192.168.200.226', '[fe80::250:56ff:fea5:ef71]'],
               'discovery.zen.minimum_master_nodes' => 2,
             )

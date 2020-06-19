@@ -6,7 +6,7 @@
 #   include grayloginstall::cluster
 class grayloginstall::cluster (
   String  $cluster_name     = $grayloginstall::params::cluster_name,
-  Boolean $fallback_default = true,
+  Boolean $fallback_default = false,
   Optional[Stdlib::IP::Address]
           $subnet           = undef,
   Optional[Stdlib::IP::Address]
