@@ -58,6 +58,7 @@ class grayloginstall::server (
           $mongodb_addr                = undef,
   Optional[String]
           $mongodb_conn_replset_name   = undef,
+  # TODO: MongoDB authentication
 
   Boolean $manage_mongodb              = true,
 
@@ -109,6 +110,7 @@ class grayloginstall::server (
 ) inherits grayloginstall::params
 {
   $elastic_port = $grayloginstall::params::elastic_port
+  $mongodb_port = $grayloginstall::params::mongodb_port
 
   if $manage_java {
     include grayloginstall::java
@@ -244,7 +246,6 @@ class grayloginstall::server (
     fail('Either mongodb_addr list should be provided with MongoDB address(es) or own Mongo instance management enabled')
   }
 
-  $mongodb_port = $grayloginstall::params::mongodb_port
   # https://docs.mongodb.com/manual/reference/connection-string/
   if $mongodb_uri[1] {
     $mongodb_hosts_list = $mongodb_uri.reduce([]) |$memo, $mongo_host| {
