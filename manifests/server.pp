@@ -9,6 +9,18 @@
 # @param password_secret
 #   Secret that is used for password encryption and salting (Graylog)
 #
+# @param mongodb_addr
+#   MongoDB conneectionn address. If provided than has higher priority than self-managed instance of MongoDB
+#   (see `mongodb_bind_ip` and `mongodb_replset_members`)
+#
+# @param manage_mongodb
+#   Boolean flag whether to manage own MongoDB instance or not
+#
+# @param mongodb_bind_ip
+#   Array of IP addresses. If provided, MongoDB will bind to these addresses only.
+#   If not provided MongoDB will bind to address that reside in `cluster_network` if specified.
+#   Otherwise it will fallback to default (see `grayloginstall::params`)
+#
 # @param http_bind_ip
 #   IP part of graylog setting `http_bind_address` (it has higher priority than `http_bind_external`)
 #   Default is 127.0.0.1
@@ -39,55 +51,61 @@ class grayloginstall::server (
   String  $root_password,
   String[64]
           $password_secret,
-  String  $package_version      = $grayloginstall::params::graylog_version,
-  String  $major_version        = $grayloginstall::params::graylog_major,
+  String  $package_version             = $grayloginstall::params::graylog_version,
+  String  $major_version               = $grayloginstall::params::graylog_major,
 
-  Boolean $manage_mongodb       = true,
+  Optional[Grayloginstall::MongoAddr]
+          $mongodb_addr                = undef,
+  Optional[String]
+          $mongodb_conn_replset_name   = undef,
 
-  Optional[
-    Array[
-      Variant[
-        Stdlib::IP::Address,
-        Stdlib::Fqdn
-      ]
-    ]
-  ]       $mongodb_bind_ip      = undef,
+  Boolean $manage_mongodb              = true,
 
-  Boolean $manage_elastic       = true,
+  Optional[Array[Stdlib::IP::Address]]
+          $mongodb_bind_ip             = undef,
+
+  # https://docs.graylog.org/en/3.3/pages/configuration/multinode_setup.html#mongodb-replica-set
+  Boolean $setup_replica_set           = true,
+  Optional[Grayloginstall::MongoAddr]
+          $mongodb_replset_members     = undef,
+  Optional[String]
+          $mongodb_replset_name        = $grayloginstall::params::mongodb_replset_name,
+
+  Boolean $manage_elastic              = true,
 
   Optional[Grayloginstall::NetworkHost]
-          $elastic_network_host = undef,
+          $elastic_network_host        = undef,
   Optional[Array[Stdlib::IP::Address]]
-          $elastic_seed_hosts   = undef,
-  Boolean $elastic_master_only  = false,
+          $elastic_seed_hosts          = undef,
+  Boolean $elastic_master_only         = false,
 
-  Boolean $manage_java          = true,
+  Boolean $manage_java                 = true,
 
   Optional[Integer[0,1]]
-          $repo_sslverify       = undef,
+          $repo_sslverify              = undef,
 
   Optional[Stdlib::IP::Address]
-          $cluster_network      = undef,
+          $cluster_network             = undef,
   Optional[Stdlib::IP::Address]
-          $external_network     = undef,
+          $external_network            = undef,
 
   Optional[Stdlib::IP::Address]
-          $http_bind_ip         = undef,
-  Integer $http_bind_port       = $grayloginstall::params::http_bind_port,
-  Boolean $http_bind_cluster    = true,
-  Boolean $http_bind_external   = true,
+          $http_bind_ip                = undef,
+  Integer $http_bind_port              = $grayloginstall::params::http_bind_port,
+  Boolean $http_bind_cluster           = true,
+  Boolean $http_bind_external          = true,
 
-  Boolean $enable_web           = true,
+  Boolean $enable_web                  = true,
   Optional[Stdlib::Fqdn]
-          $http_server          = undef,
-  Boolean $http_secure          = false,
+          $http_server                 = undef,
+  Boolean $http_secure                 = false,
   Optional[String]
-          $http_ssl_cert        = undef,
+          $http_ssl_cert               = undef,
   Optional[String]
-          $http_ssl_key         = undef,
+          $http_ssl_key                = undef,
 
-  String  $cluster_name         = $grayloginstall::params::cluster_name,
-  Boolean $is_master            = false,
+  String  $cluster_name                = $grayloginstall::params::cluster_name,
+  Boolean $is_master                   = false,
 ) inherits grayloginstall::params
 {
   $elastic_port = $grayloginstall::params::elastic_port
@@ -107,9 +125,18 @@ class grayloginstall::server (
 
   if $manage_mongodb {
     class { 'grayloginstall::mongodb':
-      repo_sslverify => $repo_sslverify,
-      bind_ip        => $mongodb_bind_ip,
+      repo_sslverify      => $repo_sslverify,
+      bind_ip             => $mongodb_bind_ip,
+      replica_set_name    => $mongodb_replset_name,
+      replica_set_members => $mongodb_replset_members,
     }
+
+    $graylog_mongodb_bind_ip = $grayloginstall::mongodb::config_bind_ip
+    $graylog_mongodb_replset_members = $grayloginstall::mongodb::replset_members
+  }
+  else {
+    $graylog_mongodb_bind_ip = []
+    $graylog_mongodb_replset_members = []
   }
 
   if $manage_elastic {
@@ -119,10 +146,10 @@ class grayloginstall::server (
       master_only          => $elastic_master_only,
     }
 
-    $elastic_discovery_seed_hosts = $grayloginstall::elastic::graylog_elasticsearch_hosts
+    $config_elastic_seed_hosts = $grayloginstall::elastic::graylog_elasticsearch_hosts
   }
   else {
-    $elastic_discovery_seed_hosts = []
+    $config_elastic_seed_hosts = []
   }
 
   # https://docs.graylog.org/en/3.3/pages/installation/os/centos.html
@@ -180,17 +207,62 @@ class grayloginstall::server (
     $http_external_uri_config = {}
   }
 
-  if $elastic_discovery_seed_hosts[0] {
-    $elasticsearch_hosts = $elastic_discovery_seed_hosts.reduce([]) |$memo, $seed_host| {
+  if $config_elastic_seed_hosts[0] {
+    $elasticsearch_url_list = $config_elastic_seed_hosts.reduce([]) |$memo, $seed_host| {
                             $memo + [ "http://${seed_host}:${elastic_port}" ]
                           }
 
     $elasticsearch_hosts_config = {
-                                    'elasticsearch_hosts' => join($elasticsearch_hosts, ',')
+                                    'elasticsearch_hosts' => join($elasticsearch_url_list, ',')
                                   }
   }
   else {
     $elasticsearch_hosts_config = {}
+  }
+
+  # mongodb_uri
+  if $mongodb_addr and $mongodb_addr[0] {
+    $mongodb_uri = $mongodb_addr
+    if $mongodb_addr.length >= 3 {
+      $mongodb_uri_replset = $mongodb_conn_replset_name
+    }
+    else {
+      $mongodb_uri_replset = undef
+    }
+  }
+  elsif $manage_mongodb {
+    if $graylog_mongodb_replset_members[0] {
+      $mongodb_uri = $graylog_mongodb_replset_members
+      $mongodb_uri_replset = $mongodb_replset_name
+    }
+    else {
+      $mongodb_uri = $graylog_mongodb_bind_ip
+      $mongodb_uri_replset = undef
+    }
+  }
+  else {
+    fail('Either mongodb_addr list should be provided with MongoDB address(es) or own Mongo instance management enabled')
+  }
+
+  $mongodb_port = $grayloginstall::params::mongodb_port
+  # https://docs.mongodb.com/manual/reference/connection-string/
+  if $mongodb_uri[1] {
+    $mongodb_hosts_list = $mongodb_uri.reduce([]) |$memo, $mongo_host| {
+                            $memo + [ "${mongo_host}:${mongodb_port}" ]
+                          }
+    $mongodb_hosts = join($mongodb_hosts_list, ',')
+    if $mongodb_uri_replset {
+      # Replica Set
+      $mongodb_uri_config = { 'mongodb_uri' => "mongodb://${mongodb_hosts}/?replicaSet=${mongodb_uri_replset}" }
+    }
+    else {
+      $mongodb_uri_config = { 'mongodb_uri' => "mongodb://${mongodb_hosts}" }
+    }
+  }
+  else {
+    $mongodb_hosts = $mongodb_uri[0]
+    # Standalone
+    $mongodb_uri_config = { 'mongodb_uri' => "mongodb://${mongodb_hosts}:${mongodb_port}" }
   }
 
   class { 'graylog::server':
@@ -203,7 +275,8 @@ class grayloginstall::server (
                           'http_bind_address'  => $http_bind_address,
                         } +
                         $http_external_uri_config +
-                        $elasticsearch_hosts_config,
+                        $elasticsearch_hosts_config +
+                        $mongodb_uri_config,
   }
 
   # WEB interface (Nginx)

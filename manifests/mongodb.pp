@@ -8,20 +8,20 @@ class grayloginstall::mongodb (
   Boolean $manage_open_files_limit = true,
   Boolean $manage_selinux          = false,
   String  $version                 = $grayloginstall::params::mongodb_version,
-  Optional[
-    Array[
-      Variant[
-        Stdlib::IP::Address,
-        Stdlib::Fqdn
-      ]
-    ]
-  ]       $bind_ip                 = undef,
+  Optional[Array[Stdlib::IP::Address]]
+          $bind_ip                 = undef,
   Optional[Integer[0,1]]
           $repo_sslverify          = undef,
+  # MongoDB replica set
+  Boolean $setup_replica_set       = true,
+  String  $replica_set_name        = $grayloginstall::params::mongodb_replset_name,
+  Optional[Grayloginstall::MongoAddr]
+          $replica_set_members     = undef,
 ) inherits grayloginstall::params
 {
   include grayloginstall::cluster
-  $cluster_bind_ip        = $grayloginstall::cluster::ipaddr
+  $cluster_discovery = $grayloginstall::cluster::mongo_discovery
+  $cluster_bind_ip   = $grayloginstall::cluster::ipaddr
 
   # parameter bind_ip has higher priority over cluster settings
   if $bind_ip and $bind_ip[0] {
@@ -77,11 +77,41 @@ class grayloginstall::mongodb (
     before   => Class['mongodb::server'],
   }
 
+  if $setup_replica_set {
+    # The minimum recommended configuration for a replica set is a three member replica set with three data-bearing
+    # members: one primary and two secondary members.
+    # see https://docs.mongodb.com/manual/core/replica-set-members/
+    if $replica_set_members and $replica_set_members.length >= 3 {
+      $replset_members = $replica_set_members
+    }
+    elsif $cluster_discovery and $cluster_discovery.length >= 3 {
+      $replset_members = $cluster_discovery
+    }
+    else {
+      $replset_members = []
+    }
+
+    if $replset_members[0] {
+      $config_replset = {
+        replset         => $replica_set_name,
+        replset_members => $replset_members,
+      }
+    }
+    else {
+      $config_replset = {}
+    }
+  }
+  else {
+    $replset_members = []
+    $config_replset = {}
+  }
+
   class { 'mongodb::client': }
   class { 'mongodb::server':
     bind_ip => $config_bind_ip,
+    *       => $config_replset,
   }
 
-  # TODO: systemd service drop-in file for MongoDB service
+  Class['mongodb::globals'] -> Class['mongodb::client']
   Class['mongodb::globals'] -> Class['mongodb::server']
 }
