@@ -5,6 +5,8 @@
 # @example
 #   include grayloginstall::mongodb
 class grayloginstall::mongodb (
+  String  $graylog_password,
+
   Boolean $manage_open_files_limit = true,
   Boolean $manage_selinux          = false,
   String  $version                 = $grayloginstall::params::mongodb_version,
@@ -12,11 +14,16 @@ class grayloginstall::mongodb (
           $bind_ip                 = undef,
   Optional[Integer[0,1]]
           $repo_sslverify          = undef,
+
   # MongoDB replica set
   Boolean $setup_replica_set       = true,
   String  $replica_set_name        = $grayloginstall::params::mongodb_replset_name,
   Optional[Grayloginstall::MongoAddr]
           $replica_set_members     = undef,
+
+  # Graylog MongoDB user
+  String  $graylog_user            = $grayloginstall::params::mongodb_user,
+  String  $graylog_database        = $grayloginstall::params::mongodb_database,
 ) inherits grayloginstall::params
 {
   include grayloginstall::cluster
@@ -114,6 +121,17 @@ class grayloginstall::mongodb (
     bind_ip => $config_bind_ip,
     *       => $config_replset,
   }
+
+  # MongoDB user
+  mongodb_user { $graylog_user:
+    ensure        => present,
+    password_hash => mongodb_password($graylog_user, $graylog_password),
+    database      => $graylog_database,
+    roles         => ['readWrite', 'dbAdmin'],
+    require       => Class['mongodb::server'],
+  }
+
+  # TODO: https://docs.mongodb.com/manual/tutorial/convert-secondary-into-arbiter/
 
   Class['mongodb::globals'] -> Class['mongodb::client']
   Class['mongodb::globals'] -> Class['mongodb::server']

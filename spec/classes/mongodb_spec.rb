@@ -12,6 +12,11 @@ describe 'grayloginstall::mongodb' do
       let(:facts) do
         os_facts.merge(local_facts)
       end
+      let(:params) do
+        {
+          'graylog_password' => 'D1fficultP@ssw:rd',
+        }
+      end
 
       it { is_expected.to compile }
     end

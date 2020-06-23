@@ -15,6 +15,8 @@ class grayloginstall::params {
   $mongodb_bind_ip = ['127.0.0.1']
   $mongodb_port = 27017
   $mongodb_replset_name = 'rs01'
+  $mongodb_database = 'graylog'
+  $mongodb_user = 'graylog'
 
   $graylog_version = '3.3.0'
 

@@ -49,6 +49,8 @@
 #
 class grayloginstall::server (
   String  $root_password,
+  String  $mongodb_password,
+
   String[64]
           $password_secret,
   String  $package_version             = $grayloginstall::params::graylog_version,
@@ -58,7 +60,10 @@ class grayloginstall::server (
           $mongodb_addr                = undef,
   Optional[String]
           $mongodb_conn_replset_name   = undef,
+
   # TODO: MongoDB authentication
+  String  $mongodb_user                = $grayloginstall::params::mongodb_user,
+  String  $mongodb_database            = $grayloginstall::params::mongodb_database,
 
   Boolean $manage_mongodb              = true,
 
@@ -131,6 +136,10 @@ class grayloginstall::server (
       bind_ip             => $mongodb_bind_ip,
       replica_set_name    => $mongodb_replset_name,
       replica_set_members => $mongodb_replset_members,
+
+      graylog_user        => $mongodb_user,
+      graylog_password    => $mongodb_password,
+      graylog_database    => $mongodb_database,
     }
 
     $graylog_mongodb_bind_ip = $grayloginstall::mongodb::config_bind_ip
@@ -246,6 +255,9 @@ class grayloginstall::server (
     fail('Either mongodb_addr list should be provided with MongoDB address(es) or own Mongo instance management enabled')
   }
 
+  $mongodb_uri_pw = grayloginstall::mongo_password($mongodb_password)
+  $access_string = "${mongodb_user}:${mongodb_uri_pw}"
+
   # https://docs.mongodb.com/manual/reference/connection-string/
   # TODO: https://docs.mongodb.com/manual/reference/connection-string/#connections-connection-options
   if $mongodb_uri_addr_list[1] {
@@ -256,16 +268,16 @@ class grayloginstall::server (
 
     if $mongodb_uri_replset {
       # Replica Set
-      $config_mongodb_uri = { 'mongodb_uri' => "mongodb://${mongodb_hosts}/?replicaSet=${mongodb_uri_replset}" }
+      $config_mongodb_uri = { 'mongodb_uri' => "mongodb://${access_string}@${mongodb_hosts}/${mongodb_database}?replicaSet=${mongodb_uri_replset}" }
     }
     else {
-      $config_mongodb_uri = { 'mongodb_uri' => "mongodb://${mongodb_hosts}" }
+      $config_mongodb_uri = { 'mongodb_uri' => "mongodb://${access_string}@${mongodb_hosts}/${mongodb_database}" }
     }
   }
   else {
     $mongodb_hosts = $mongodb_uri_addr_list[0]
     # Standalone
-    $config_mongodb_uri = { 'mongodb_uri' => "mongodb://${mongodb_hosts}:${mongodb_port}" }
+    $config_mongodb_uri = { 'mongodb_uri' => "mongodb://${access_string}@${mongodb_hosts}:${mongodb_port}/${mongodb_database}" }
   }
 
   class { 'graylog::server':

@@ -110,6 +110,7 @@ describe 'grayloginstall::server' do
         {
           'root_password' => 'secret',
           'password_secret' => '1H3RGlH5vNZUYgLAD7hDya74PmsioxpJZIIIjiEHySOF68ozxxaIUbJSygIDGvMKAGvaVfYgbqDxk2Cji3sLqQ9MncSSE73o',
+          'mongodb_password' => 'D1fficultP@ssw:rd',
         }
       end
 
@@ -130,7 +131,7 @@ describe 'grayloginstall::server' do
               'is_master'           => false,
               'http_bind_address'   => '104.134.88.225:9000',
               'elasticsearch_hosts' => 'http://192.168.200.225:9200,http://192.168.200.226:9200,http://192.168.200.192:9200',
-              'mongodb_uri'         => 'mongodb://127.0.0.1:27017',
+              'mongodb_uri'         => 'mongodb://graylog:D1fficultP%40ssw%3Ard@127.0.0.1:27017/graylog',
             )
         }
       end
@@ -150,7 +151,7 @@ describe 'grayloginstall::server' do
               'is_master'           => false,
               'http_bind_address'   => '104.134.88.225:9000',
               'http_external_uri'   => 'http://graylog.domain.tld/',
-              'mongodb_uri'         => 'mongodb://127.0.0.1:27017',
+              'mongodb_uri'         => 'mongodb://graylog:D1fficultP%40ssw%3Ard@127.0.0.1:27017/graylog',
             )
         }
       end
