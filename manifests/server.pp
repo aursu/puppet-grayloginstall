@@ -294,6 +294,8 @@ class grayloginstall::server (
                         $config_mongodb_uri,
   }
 
+  Package['graylog-server'] ~>Service['graylog-server']
+
   # WEB interface (Nginx)
   if $enable_web and $http_server {
     class { 'grayloginstall::web':
