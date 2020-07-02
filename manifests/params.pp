@@ -18,7 +18,7 @@ class grayloginstall::params {
   $mongodb_database = 'graylog'
   $mongodb_user = 'graylog'
 
-  $graylog_version = '3.3.1'
+  $graylog_version = '3.3.2'
 
   $rel = split($graylog_version, '[.]')
   $graylog_major = join($rel[0,2], '.')
