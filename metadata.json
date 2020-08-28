@@ -5,6 +5,8 @@
   "summary": "Manage GrayLog installation",
   "license": "Apache-2.0",
   "source": "https://github.com/aursu/puppet-grayloginstall.git",
+  "project_page": "https://github.com/aursu/puppet-grayloginstall",
+  "issues_url": "https://github.com/aursu/puppet-grayloginstall/issues",
   "dependencies": [
     {
       "name": "puppetlabs/stdlib",
