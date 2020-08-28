@@ -1,6 +1,6 @@
-# @summary A short summary of the purpose of this class
+# @summary Setup Web service for GrayLog web interface
 #
-# A description of what this class does
+# Setup Web service for GrayLog web interface
 #
 # @example
 #   include grayloginstall::web

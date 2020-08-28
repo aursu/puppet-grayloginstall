@@ -1,6 +1,6 @@
-# @summary A short summary of the purpose of this defined type.
+# @summary Elasticsearch resource to export into PuppetDB
 #
-# A description of what this defined type does
+# Elasticsearch resource to export into PuppetDB
 #
 # @example
 #   grayloginstall::elastic_host { 'namevar': }

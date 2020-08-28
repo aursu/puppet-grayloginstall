@@ -1,6 +1,6 @@
-# @summary A short summary of the purpose of this class
+# @summary Setup MongoDB service as part of replica set
 #
-# A description of what this class does
+# Setup MongoDB service as part of replica set
 #
 # @example
 #   include grayloginstall::mongodb

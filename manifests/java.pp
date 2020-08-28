@@ -1,6 +1,6 @@
-# @summary A short summary of the purpose of this class
+# @summary Install Java Runtime
 #
-# A description of what this class does
+# Install Java Runtime
 #
 # @example
 #   include grayloginstall::java

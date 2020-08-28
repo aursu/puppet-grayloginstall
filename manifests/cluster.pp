@@ -1,6 +1,6 @@
-# @summary A short summary of the purpose of this class
+# @summary Retrieve and export cluster settings via PuppetDB
 #
-# A description of what this class does
+# Retrieve and export cluster settings via PuppetDB
 #
 # @example
 #   include grayloginstall::cluster

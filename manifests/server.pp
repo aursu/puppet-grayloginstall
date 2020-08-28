@@ -1,4 +1,4 @@
-# @summary A short summary of the purpose of this class
+# @summary Setup GrayLog server
 #
 # @example
 #   include grayloginstall::server
