@@ -3,6 +3,9 @@
 ---
 fixtures:
   forge_modules:
+    augeas_core:
+      repo: puppetlabs/augeas_core
+      puppet_version: ">= 6.0.0"
     concat:
       repo: "puppetlabs/concat"
       ref: "6.2.0"
@@ -18,12 +21,18 @@ fixtures:
     graylog:
       repo: graylog/graylog
       ref: 0.9.0
+    host_core:
+      repo: puppetlabs/host_core
+      puppet_version: ">= 6.0.0"
     java:
       repo: puppetlabs/java
       ref: 6.3.0
     mongodb:
       repo: puppet/mongodb
       ref: 3.1.0
+    selinux_core:
+      repo: puppetlabs/selinux_core
+      puppet_version: ">= 6.0.0"
     selinux:
       repo: "puppet/selinux"
       ref: 3.2.0
@@ -33,21 +42,12 @@ fixtures:
     systemd:
       repo: camptocamp/systemd
       ref: 2.9.0
+    yumrepo_core:
+      repo: puppetlabs/yumrepo_core
+      puppet_version: ">= 6.0.0"
   repositories:
     nginx:
-      repo: "https://github.com/aursu/puppet-nginx.git"
-      ref: "tags/v1.1.1-rc0.5"
+      repo: https://github.com/aursu/puppet-nginx.git
+      ref: tags/v3.0.1-rc0.1
     rlimits:
-      repo: "https://github.com/aursu/puppet-rlimits.git"
-    augeas_core:
-      repo: https://github.com/puppetlabs/puppetlabs-augeas_core.git
-      puppet_version: ">= 6.0.0"
-    host_core:
-      repo: https://github.com/puppetlabs/puppetlabs-host_core.git
-      puppet_version: ">= 6.0.0"
-    selinux_core:
-      repo: https://github.com/puppetlabs/puppetlabs-selinux_core.git
-      puppet_version: ">= 6.0.0"
-    yumrepo_core:
-      repo: https://github.com/puppetlabs/puppetlabs-yumrepo_core.git
-      puppet_version: ">= 6.0.0"
+      repo: https://github.com/aursu/puppet-rlimits.git
