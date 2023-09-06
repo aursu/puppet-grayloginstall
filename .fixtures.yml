@@ -7,47 +7,48 @@ fixtures:
       repo: puppetlabs/augeas_core
       puppet_version: ">= 6.0.0"
     concat:
-      repo: "puppetlabs/concat"
-      ref: "6.2.0"
+      repo: puppetlabs/concat
+      ref: 9.0.0
     datacat:
       repo: richardc/datacat
       ref: 0.6.2
     elastic_stack:
-      repo: elastic/elastic_stack
-      ref: 7.0.0
+      repo: puppet/elastic_stack
+      ref: 9.0.0
     elasticsearch:
-      repo: elastic/elasticsearch
-      ref: 6.4.0
+      repo: puppet/elasticsearch
+      ref: 8.1.0
     graylog:
       repo: graylog/graylog
-      ref: 0.9.0
+      ref: 2.0.0
     host_core:
       repo: puppetlabs/host_core
       puppet_version: ">= 6.0.0"
     java:
       repo: puppetlabs/java
-      ref: 6.3.0
-    mongodb:
-      repo: puppet/mongodb
-      ref: 3.1.0
+      ref: 10.1.2
     selinux_core:
       repo: puppetlabs/selinux_core
       puppet_version: ">= 6.0.0"
     selinux:
-      repo: "puppet/selinux"
-      ref: 3.2.0
+      repo: puppet/selinux
+      ref: 4.0.0
     stdlib:
       repo: puppetlabs/stdlib
-      ref: 6.3.0
+      ref: 9.3.0
     systemd:
-      repo: camptocamp/systemd
-      ref: 2.9.0
+      repo: puppet/systemd
+      ref: 6.0.0
     yumrepo_core:
       repo: puppetlabs/yumrepo_core
       puppet_version: ">= 6.0.0"
   repositories:
     nginx:
       repo: https://github.com/aursu/puppet-nginx.git
-      ref: tags/v3.0.1-rc0.1
+      ref: tags/v4.4.1-rc0.2
     rlimits:
       repo: https://github.com/aursu/puppet-rlimits.git
+      ref: tags/v1.0.0
+    mongodb:
+      repo: https://github.com/aursu/puppet-mongodb.git
+      ref: tags/v4.2.1

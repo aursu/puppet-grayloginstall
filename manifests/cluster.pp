@@ -11,9 +11,8 @@ class grayloginstall::cluster (
           $subnet           = undef,
   Optional[Stdlib::IP::Address]
           $external_subnet  = undef,
-) inherits grayloginstall::params
-{
-  $hostname = $::facts['fqdn']
+) inherits grayloginstall::params {
+  $hostname = $facts['networking']['fqdn']
 
   if $subnet {
     $addr = grayloginstall::selfsubnet($subnet)

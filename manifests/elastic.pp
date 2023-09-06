@@ -30,15 +30,12 @@
 #   See https://www.elastic.co/guide/en/elasticsearch/reference/6.8/discovery-settings.html#unicast.hosts
 #
 class grayloginstall::elastic (
-  String  $version              = $grayloginstall::params::elastic_version,
+  String $version = $grayloginstall::params::elastic_version,
   Integer $minimum_master_nodes = 2,
-  Optional[Grayloginstall::NetworkHost]
-          $network_host         = undef,
-  Optional[Array[Stdlib::IP::Address]]
-          $discovery_seed_hosts = undef,
-  Boolean $master_only          = false,
-) inherits grayloginstall::params
-{
+  Optional[Grayloginstall::NetworkHost] $network_host = undef,
+  Optional[Array[Stdlib::IP::Address]] $discovery_seed_hosts = undef,
+  Boolean $master_only = false,
+) inherits grayloginstall::params {
   include grayloginstall::cluster
 
   $default_discovery_seed_hosts = $grayloginstall::params::elastic_discovery_seed_hosts
@@ -70,7 +67,7 @@ class grayloginstall::elastic (
     $remote_discovery_seed_hosts = []
   }
 
-  if $remote_discovery_seed_hosts[0]  {
+  if $remote_discovery_seed_hosts[0] {
     $config_discovery_seed_hosts = grayloginstall::configaddr($remote_discovery_seed_hosts)
 
     $graylog_elasticsearch_hosts = $discovery_seed_hosts
@@ -88,15 +85,30 @@ class grayloginstall::elastic (
     $graylog_elasticsearch_hosts = []
   }
 
+  if $master_only {
+    $config_master_only = {
+      'node.master' => true,
+      'node.data'   => false,
+    }
+  }
+  else {
+    $config_master_only = {}
+  }
+
+  $config = {
+    'cluster.name'                       => $cluster_name,
+    'action.auto_create_index'           => '.watches,.triggered_watches,.watcher-history-*',
+    'network.host'                       => $config_network_host,
+    'discovery.zen.ping.unicast.hosts'   => $config_discovery_seed_hosts,
+    'discovery.zen.minimum_master_nodes' => $minimum_master_nodes,
+  } + $config_master_only
+
   # https://www.elastic.co/guide/en/elasticsearch/reference/6.7/rpm.html
   class { 'elasticsearch':
     version           => $version,
     manage_repo       => false,
-    config            => {
-      'cluster.name'             => $cluster_name,
-      'action.auto_create_index' => '.watches,.triggered_watches,.watcher-history-*',
-    },
-    restart_on_change => true
+    config            => $config,
+    restart_on_change => true,
   }
 
   class { 'elastic_stack::repo':
@@ -108,25 +120,15 @@ class grayloginstall::elastic (
     mode => '0600',
   }
 
-  if $master_only {
-    $config_master_only = {
-      'node.master' => true,
-      'node.data'   => false,
-    }
-  }
-  else {
-    $config_master_only = {}
-  }
-
-  elasticsearch::instance { 'graylog':
-    config => {
-                'network.host'                       => $config_network_host,
-                'discovery.zen.ping.unicast.hosts'   => $config_discovery_seed_hosts,
-                'discovery.zen.minimum_master_nodes' => $minimum_master_nodes,
-              } +
-              $config_master_only,
-  }
+  # elasticsearch::instance { 'graylog':
+  #   config => {
+  #               'network.host'                       => $config_network_host,
+  #               'discovery.zen.ping.unicast.hosts'   => $config_discovery_seed_hosts,
+  #               'discovery.zen.minimum_master_nodes' => $minimum_master_nodes,
+  #             } +
+  #             $config_master_only,
+  # }
 
   Class['elastic_stack::repo']
-      -> Class['elasticsearch::package']
+  -> Class['elasticsearch::package']
 }

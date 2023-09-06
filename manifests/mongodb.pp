@@ -24,8 +24,7 @@ class grayloginstall::mongodb (
   # Graylog MongoDB user
   String  $graylog_user            = $grayloginstall::params::mongodb_user,
   String  $graylog_database        = $grayloginstall::params::mongodb_database,
-) inherits grayloginstall::params
-{
+) inherits grayloginstall::params {
   include grayloginstall::cluster
   $cluster_discovery = $grayloginstall::cluster::mongo_discovery
   $cluster_bind_ip   = $grayloginstall::cluster::ipaddr
@@ -39,7 +38,7 @@ class grayloginstall::mongodb (
   # if subnet is not specified - default IP address (IP address of inerface that default route set to)
   # Undef if grayloginstall::cluster::fallback_default is false and cluster subnet is not specified
   elsif $cluster_bind_ip {
-    $config_bind_ip = [ $cluster_bind_ip ]
+    $config_bind_ip = [$cluster_bind_ip]
   }
   else {
     # fallback to module default

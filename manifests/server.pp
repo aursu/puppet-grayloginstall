@@ -51,15 +51,12 @@ class grayloginstall::server (
   String  $root_password,
   String  $mongodb_password,
 
-  String[64]
-          $password_secret,
+  String[64] $password_secret,
   String  $package_version             = $grayloginstall::params::graylog_version,
   String  $major_version               = $grayloginstall::params::graylog_major,
 
-  Optional[Grayloginstall::MongoAddr]
-          $mongodb_addr                = undef,
-  Optional[String]
-          $mongodb_conn_replset_name   = undef,
+  Optional[Grayloginstall::MongoAddr] $mongodb_addr = undef,
+  Optional[String] $mongodb_conn_replset_name = undef,
 
   # TODO: MongoDB authentication
   String  $mongodb_user                = $grayloginstall::params::mongodb_user,
@@ -67,53 +64,40 @@ class grayloginstall::server (
 
   Boolean $manage_mongodb              = true,
 
-  Optional[Array[Stdlib::IP::Address]]
-          $mongodb_bind_ip             = undef,
+  Optional[Array[Stdlib::IP::Address]] $mongodb_bind_ip = undef,
 
   # https://docs.graylog.org/en/3.3/pages/configuration/multinode_setup.html#mongodb-replica-set
   Boolean $setup_replica_set           = true,
-  Optional[Grayloginstall::MongoAddr]
-          $mongodb_replset_members     = undef,
-  Optional[String]
-          $mongodb_replset_name        = $grayloginstall::params::mongodb_replset_name,
+  Optional[Grayloginstall::MongoAddr] $mongodb_replset_members = undef,
+  Optional[String] $mongodb_replset_name = $grayloginstall::params::mongodb_replset_name,
 
   Boolean $manage_elastic              = true,
 
-  Optional[Grayloginstall::NetworkHost]
-          $elastic_network_host        = undef,
-  Optional[Array[Stdlib::IP::Address]]
-          $elastic_seed_hosts          = undef,
+  Optional[Grayloginstall::NetworkHost] $elastic_network_host = undef,
+  Optional[Array[Stdlib::IP::Address]] $elastic_seed_hosts = undef,
   Boolean $elastic_master_only         = false,
 
   Boolean $manage_java                 = true,
 
-  Optional[Integer[0,1]]
-          $repo_sslverify              = undef,
+  Optional[Integer[0,1]] $repo_sslverify = undef,
 
-  Optional[Stdlib::IP::Address]
-          $cluster_network             = undef,
-  Optional[Stdlib::IP::Address]
-          $external_network            = undef,
+  Optional[Stdlib::IP::Address] $cluster_network = undef,
+  Optional[Stdlib::IP::Address] $external_network = undef,
 
-  Optional[Stdlib::IP::Address]
-          $http_bind_ip                = undef,
+  Optional[Stdlib::IP::Address]  $http_bind_ip = undef,
   Integer $http_bind_port              = $grayloginstall::params::http_bind_port,
   Boolean $http_bind_cluster           = true,
   Boolean $http_bind_external          = true,
 
   Boolean $enable_web                  = true,
-  Optional[Stdlib::Fqdn]
-          $http_server                 = undef,
+  Optional[Stdlib::Fqdn] $http_server = undef,
   Boolean $http_secure                 = false,
-  Optional[String]
-          $http_ssl_cert               = undef,
-  Optional[String]
-          $http_ssl_key                = undef,
+  Optional[String] $http_ssl_cert = undef,
+  Optional[String] $http_ssl_key = undef,
 
   String  $cluster_name                = $grayloginstall::params::cluster_name,
   Boolean $is_master                   = false,
-) inherits grayloginstall::params
-{
+) inherits grayloginstall::params {
   $elastic_port = $grayloginstall::params::elastic_port
   $mongodb_port = $grayloginstall::params::mongodb_port
 
@@ -220,12 +204,12 @@ class grayloginstall::server (
 
   if $config_elastic_seed_hosts[0] {
     $elasticsearch_url_list = $config_elastic_seed_hosts.reduce([]) |$memo, $seed_host| {
-                            $memo + [ "http://${seed_host}:${elastic_port}" ]
-                          }
+      $memo + ["http://${seed_host}:${elastic_port}"]
+    }
 
     $config_elasticsearch_hosts = {
-                                    'elasticsearch_hosts' => join($elasticsearch_url_list, ',')
-                                  }
+      'elasticsearch_hosts' => join($elasticsearch_url_list, ',')
+    }
   }
   else {
     $config_elasticsearch_hosts = {}
@@ -262,8 +246,8 @@ class grayloginstall::server (
   # TODO: https://docs.mongodb.com/manual/reference/connection-string/#connections-connection-options
   if $mongodb_uri_addr_list[1] {
     $mongodb_hosts_list = $mongodb_uri_addr_list.reduce([]) |$memo, $mongo_host| {
-                            $memo + [ "${mongo_host}:${mongodb_port}" ]
-                          }
+      $memo + ["${mongo_host}:${mongodb_port}"]
+    }
     $mongodb_hosts = join($mongodb_hosts_list, ',')
 
     if $mongodb_uri_replset {
@@ -284,14 +268,14 @@ class grayloginstall::server (
     package_version => $package_version,
     # https://docs.graylog.org/en/3.2/pages/getting_started/configure.html
     config          => {
-                          'password_secret'    => $password_secret,
-                          'root_password_sha2' => sha256($root_password),
-                          'is_master'          => $is_master,
-                          'http_bind_address'  => $http_bind_address,
-                        } +
-                        $config_http_external_uri +
-                        $config_elasticsearch_hosts +
-                        $config_mongodb_uri,
+      'password_secret'    => $password_secret,
+      'root_password_sha2' => sha256($root_password),
+      'is_master'          => $is_master,
+      'http_bind_address'  => $http_bind_address,
+    } +
+    $config_http_external_uri +
+    $config_elasticsearch_hosts +
+    $config_mongodb_uri,
   }
 
   Package['graylog-server'] ~>Service['graylog-server']

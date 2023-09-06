@@ -110,8 +110,10 @@ describe 'grayloginstall::elastic' do
       it { is_expected.to compile }
 
       it {
-        is_expected.to contain_elasticsearch__instance('graylog')
+        is_expected.to contain_class('elasticsearch')
           .with_config(
+            'cluster.name'                       => 'graylog',
+            'action.auto_create_index'           => '.watches,.triggered_watches,.watcher-history-*',
             'network.host'                       => '_site_',
             'discovery.zen.ping.unicast.hosts'   => ['127.0.0.1', '[::1]'],
             'discovery.zen.minimum_master_nodes' => 2,
@@ -128,8 +130,10 @@ describe 'grayloginstall::elastic' do
         end
 
         it {
-          is_expected.to contain_elasticsearch__instance('graylog')
+          is_expected.to contain_class('elasticsearch')
             .with_config(
+              'cluster.name'                       => 'graylog',
+              'action.auto_create_index'           => '.watches,.triggered_watches,.watcher-history-*',
               'network.host'                       => '_site_',
               'discovery.zen.ping.unicast.hosts'   => ['192.168.200.226', '[fe80::250:56ff:fea5:ef71]'],
               'discovery.zen.minimum_master_nodes' => 2,
@@ -154,8 +158,10 @@ describe 'grayloginstall::elastic' do
         end
 
         it {
-          is_expected.to contain_elasticsearch__instance('graylog')
+          is_expected.to contain_class('elasticsearch')
             .with_config(
+              'cluster.name'                       => 'graylog',
+              'action.auto_create_index'           => '.watches,.triggered_watches,.watcher-history-*',
               'network.host'                       => '104.134.88.225',
               'discovery.zen.ping.unicast.hosts'   => ['192.168.200.226', '[fe80::250:56ff:fea5:ef71]'],
               'discovery.zen.minimum_master_nodes' => 2,

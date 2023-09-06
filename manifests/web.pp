@@ -4,7 +4,7 @@
 #
 # @example
 #   include grayloginstall::web
-class grayloginstall::web  (
+class grayloginstall::web (
   String  $server_name,
   Boolean $ssl                 = false,
   Optional[String]
@@ -14,8 +14,7 @@ class grayloginstall::web  (
   Stdlib::IP::Address
           $http_bind_ip         = $grayloginstall::params::http_bind_ip,
   Integer $http_bind_port       = $grayloginstall::params::http_bind_port,
-) inherits grayloginstall::params
-{
+) inherits grayloginstall::params {
   include nginx
 
   # Nginx upstream
