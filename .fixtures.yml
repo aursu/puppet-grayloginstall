@@ -27,6 +27,9 @@ fixtures:
     java:
       repo: puppetlabs/java
       ref: 10.1.2
+    mongodb:
+      repo: puppet/mongodb
+      ref: 6.0.1
     selinux_core:
       repo: puppetlabs/selinux_core
       puppet_version: ">= 6.0.0"
@@ -49,6 +52,4 @@ fixtures:
     rlimits:
       repo: https://github.com/aursu/puppet-rlimits.git
       ref: tags/v1.0.0
-    mongodb:
-      repo: https://github.com/aursu/puppet-mongodb.git
-      ref: tags/v4.2.1
+

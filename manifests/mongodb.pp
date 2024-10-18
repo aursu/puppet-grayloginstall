@@ -62,7 +62,6 @@ class grayloginstall::mongodb (
   class { 'mongodb::globals':
     version             => $version,
     manage_package_repo => true,
-    manage_package      => true,
     use_enterprise_repo => false,
   }
 

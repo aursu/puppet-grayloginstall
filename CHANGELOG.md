@@ -12,3 +12,13 @@ All notable changes to this project will be documented in this file.
 **Bugfixes**
 
 **Known Issues**
+
+## Release 0.2.2
+
+**Features**
+
+* Upgraded dependencies (mongodb)
+
+**Bugfixes**
+
+**Known Issues**
