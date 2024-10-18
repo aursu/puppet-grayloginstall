@@ -13,11 +13,11 @@ All notable changes to this project will be documented in this file.
 
 **Known Issues**
 
-## Release 0.2.2
+## Release 0.2.3
 
 **Features**
 
-* Upgraded dependencies (mongodb)
+* Upgraded dependencies (mongodb, graylog)
 
 **Bugfixes**
 

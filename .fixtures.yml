@@ -19,8 +19,8 @@ fixtures:
       repo: puppet/elasticsearch
       ref: 8.1.0
     graylog:
-      repo: graylog/graylog
-      ref: 2.0.0
+      repo: aursu/graylog
+      ref: 2.0.1
     host_core:
       repo: puppetlabs/host_core
       puppet_version: ">= 6.0.0"
